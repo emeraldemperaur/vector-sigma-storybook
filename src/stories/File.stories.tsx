@@ -54,7 +54,6 @@ import { File } from '@emeraldemperaur/vector-sigma';
 export default meta;
 type Story = StoryObj<typeof File>;
 
-// --- DESIGN VARIANTS ---
 
 export const Outline: Story = {
   render: (args) => (
@@ -84,8 +83,6 @@ export const Neumorphic: Story = {
   ),
   args: { inputtype: 'fileinput-neumorphic' },
 };
-
-// --- ADVANCED FEATURES ---
 
 /**
  * **Pre-Filled State & Image Preview:**

@@ -1,73 +1,188 @@
-# React + TypeScript + Vite
+#  💠 Vector Sigma 
+## Dynamic Form Orchestrator Documentation 📦
+[![NPM Version](https://img.shields.io/npm/v/@emeraldemperaur/vector-sigma.svg)](https://www.npmjs.com/package/@emeraldemperaur/vector-sigma)
+![Changesets](https://img.shields.io/badge/maintained%20with-changesets-176de3?style=flat-square&logo=changesets&logoColor=white) 
+[![Release Status](https://github.com/emeraldemperaur/vector-sigma/actions/workflows/release.yml/badge.svg)](https://github.com/emeraldemperaur/vector-sigma/actions)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR_API_ID/deploy-status)](https://app.netlify.com/sites/YOUR_SITE_NAME/deploys)
+![Lerna](https://img.shields.io/github/lerna-json/v/user/repo?style=flat-square&logo=lerna)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+### Overview
+<p align="justify">
+Vector Sigma (VΣ) is a dynamic form orchestrator package for rapidly creating and managing the complex lifecycle of interactive extensible input forms that can be easily embedded into a React front-end client interface for use in data capturing & onboarding applications or systems. 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Fields, Input Validation and Submission callback() can be defined and parametized in real-time predicated on a native JavaScript object/JSON (JavaScript Object Notation) xForm definition or by builder methods object pattern.
+</p>
+ 
+#### Key Features
+<ol>
+<li>
+<strong>Real-Time Form Adaptation:</strong> Adapt the xForm layout by adding/removing fields, sections or entire steps based on conditional logic.</li>
+<li>
+<strong>Validation Logic Management:</strong> Centralize business rules such as complex field validation, visibility constraints, and facilitate input value pre-population from external APIs.
+</li>
+<li>
+<strong>Form State Coordination:</strong> Monitor the "state" of the xForm across multi-step processes, allowing users to save progress and resume later.
+</li>
+<li>
+<strong>Application UI Integration:</strong> Connects the xForm data to backend workflows, CRM systems, or databases immediately upon submission.</li>
+</ol>
 
-## React Compiler
+### Documentation
+<ul>
+<li><a href="#">VΣ Documentation</a></li>
+<li><a href="#">χForm Components Storybook</a></li>
+<li><a href="https://github.com/emeraldemperaur/vector-sigma">VΣ Repository</a></li>
+<ul>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Installation
+```bash
+npm install @emeraldemperaur/vector-sigma
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Peer Dependencies
+```bash
+npm install react@latest react-dom@latest sass@latest
 ```
+### Usage
+
+#### Stateless Implementation
+```javascript
+import React from 'react';
+import { VectorSigma } from './VectorSigma';
+
+const xForm = new VectorSigma(apiJSONSchema);
+// e.g. https://github.com/emeraldemperaur/vector-sigma/blob/prometheus/src/utils/artificer.json
+
+return xForm.transform({
+    displayMode: 'dual',
+    readOnlyMode: false,
+    onSubmit: async (values, actions, instance) => {
+        // Send validated xForm 'values' payload to destination API endpoint
+        await axios.post('/api/submit', values);
+        // Reset form after HTTP POST request success and more (i.e. https://formik.org/docs/api/formik)
+        actions.resetForm(); 
+    }
+});
+```
+#### Stateful Implementation
+<p align="justify">
+<code>useVectorSigma</code> hook method utilizes <code>React</code> lazy initialization in tandem with <code>useRef</code> to guarantee VectorSigma class object is created in a singleton-ish fashion when the VΣ component mounts, and safely persists across DOM re-renders.
+</p>
+
+```javascript
+import React from 'react';
+import { useVectorSigma } from './hooks/useVectorSigma';
+import { apiXFormData } from './mockData';
+// e.g. https://github.com/emeraldemperaur/vector-sigma/blob/prometheus/src/utils/artificer.json
+
+// Optionally define interface for inputAlias's expected in xForm 'values'
+interface VΣRegistrationForm {
+    firstName: string;
+    lastName: string;
+    emailAddress: string;
+    isMITUndergraduate: boolean;
+}
+
+export const VΣRegistrationForm = () => {
+    
+    // Optionally pass the interface into the hook to apply <T> typing to 'values'
+    const xFormBuilder = useVectorSigma<VΣRegistrationForm>(apiXFormData);
+
+    // Or w/out a specified interface
+    const xFormBuilder = useVectorSigma(apiXFormData);
+        .setName('VΣ Registration Form')
+        .setBrand("brandHexColor", "www.exampleurl.com/logoimage.png", 'right')
+    return xFormBuilder.render({
+        displayMode: 'accordion',
+        readOnlyMode: false,
+        // Access 'values', 'actions' and 'instance' objects in global onSubmit callback function
+        onSubmit: async (values, actions, instance) => {
+            
+            console.log("Email:", values.emailAddress);
+            console.log("MIT Undergraduate:", values.isMITUndergraduate);
+            const timeTakenMs = (instance.timeSubmitted || Date.now()) - instance.timeCreated;
+            console.log(`VΣ User finished the xForm in ${timeTakenMs / 1000} seconds.`);
+            console.log(`xForm Status:`, instance.statusCode);
+            
+           try {
+                // Initiate HTTP POST request with stateful 'values' and 'instance' payload
+                await fetch(`/api/questionnaires/${instance.formObject.uuid}/responses`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                formVersion: instance.formObject.uuid,
+                                responseTime: instance.timeSubmitted - instance.timeCreated,
+                                xFormObject: instance.formObject,
+                                answers: values
+                            })
+                        });
+                // Reset form after HTTP POST request success and more (i.e. https://formik.org/docs/api/formik)
+                actions.resetForm(); 
+                alert("Thank you for completing the VΣ questionnaire!");
+               } catch (error) {
+                      console.error("Failed to save responses to VΣ DB", error);
+                }
+        }
+    });
+  
+};
+```
+
+### Screenshots
+
+#### Automation Workflow (N8N Webhook Trigger Node) Use Case
+
+#### Web Application (User Onboarding Data Pipeline) Use Case
+
+### Design Tenets
+<ul>
+<li><strong>📦CJS/ESM Compatible</strong></br>
+<p align="justify">Dual mode package with both CommonJS (CJS) & ES Modules (ESM) builds bundled using <code>Rollup.js</code> to facilitate universal module compatibility and enable effortless integration across legacy and modern JavaScript ecosystems.</p>
+</li>
+
+<li><strong>🔒JSON Schema Validation</strong></br>
+<p align="justify">Adopted <code>Zod</code> as the native engine for JSON schema validation to provide a TypeScript-first validation layer. Schema validation guarantees any schema object provided strictly adheres with the expected API model before rendering to client viewport.</p>
+</li>
+
+<li><strong>🛡️Input Validation</strong></br>
+<p align="justify">Declarative schema (JSON) <code>isRequired</code> and <code>errorText</code> attributes facilitate a validation engine that is comprehensive, accessible and easy to maintain. <code>onChange()</code>, <code>onBlur()</code> input event control state updates, errors and <code>values</code> are handled automatically. <code>onSubmit()</code> handler is automatically blocked if the input vs. validation schema is invalid.</p>
+</li>
+
+<li><strong>🧠Form State Management</strong></br>
+<p align="justify">Leveraged Formik for robust React state management and Yup for declarative schema validation to adhere strictly to the standard React form lifecycle, ensuring compatibility with Redux DevTools & standard debugging workflows.</p>
+</li>
+
+<li><strong>🎨Theming Extensibilty</strong></br>
+<p align="justify">Customizable to fit seamlessly into an existing design system and allow developer control of the visual layer through standard CSS patterns.</p>
+<p>Radix UI <code>theme</code> {} passed into the <code>transfrom()</code> or <code>render()</code> method(s) as an <code>options</code> attribute can be leveraged to cleverly align the returned xForm style and appearance with an extant application design system.</p>
+</li>
+
+<li><strong>🧩Exported UI Components</strong></br>
+<p align="justify">Explicitly exported reusable form UI components with material, outline and neumorphic design variants from package entry point <code>src/index.ts</code> to enable developer-friendly use as lightweight ARIA compliant component library.</p>
+<p><em>Container, Row, Column, Theme, Accordion, AccordionItem, Codex, CodexItem, CodexControls, AvatarInput, ButtonInput, CheckboxGroupInput, ConditionalTrigger, DatePicker, DateRangePicker, DateTimePicker, Dropdown, CountrySelect, File, FileMultiple, FlagIcon, Icon, Image, Input, PasswordInput, PhoneInput, CreditCardInput, CurrencyInput, StockInput, RadioGroupInput, OptionSelect, MultipleSelect, RangeSlider, SliderInput, Toggle, SectionTitle, Teletraan1 (Render Matrix)</em></p>
+</li>
+
+<li><strong>📱Mobile Responsive</strong></br>
+<p align="justify">'Mobile-First' layout design ensures that complex form orchestrations remain usable, accessible, and performant on any viewport.</p>
+</li>
+</ul>
+
+### Tool Stack
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![JavaScript](https://img.shields.io/badge/javascript-%23F7DF1E.svg?style=for-the-badge&logo=javascript&logoColor=black)
+![RollupJS](https://img.shields.io/badge/RollupJS-EC4A3F?style=for-the-badge&logo=rollupdotjs&logoColor=white)
+![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
+![React](https://img.shields.io/badge/react-%2320232A.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![SASS](https://img.shields.io/badge/SASS-hotpink.svg?style=for-the-badge&logo=SASS&logoColor=white)
+![Zod](https://img.shields.io/badge/zod-3E67B1?style=for-the-badge&logo=zod&logoColor=white)
+![Radix UI](https://img.shields.io/badge/radix%20ui-161616.svg?style=for-the-badge&logo=radix-ui&logoColor=white)
+![Formik](https://img.shields.io/badge/formik-161616?style=for-the-badge&logo=formik&logoColor=white)
+![Yup](https://img.shields.io/badge/yup-161616?style=for-the-badge&logo=yup&logoColor=white)
+![Testing Library](https://img.shields.io/badge/-Testing%20Library-%23E33332?style=for-the-badge&logo=testing-library&logoColor=white)
+![Jest](https://img.shields.io/badge/-jest-%23C21325?style=for-the-badge&logo=jest&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
+![Storybook](https://img.shields.io/badge/-Storybook-FF4785?style=for-the-badge&logo=storybook&logoColor=white)
+![Lerna](https://img.shields.io/badge/-Lerna-9437FF?style=for-the-badge&logo=lerna&logoColor=white)
+![Chromatic](https://img.shields.io/badge/-Chromatic-FC521F?style=for-the-badge&logo=chromatic&logoColor=white)
+![Netlify](https://img.shields.io/badge/-Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)

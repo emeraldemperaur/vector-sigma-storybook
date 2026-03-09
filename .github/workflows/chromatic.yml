@@ -1,0 +1,30 @@
+name: "Chromatic Deploy :: VΣ Storybook"
+
+on:
+  push:
+    branches:
+      - prometheus
+
+jobs:
+  chromatic:
+    name: "Build & Publish VΣ xForm Component Library"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout VΣ xForm Storybook repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci 
+
+      - name: Publish xForm Component Library to Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          exitZeroOnChanges: true

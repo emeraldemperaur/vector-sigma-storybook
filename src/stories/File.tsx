@@ -98,12 +98,25 @@ export interface FileInputProps {
   formikContext?: FormikContextType<any>;
 }
 
-const getFileIcon = (type: string, name: string) => {
-  if (type.includes('image')) return <Icon name='image' width="24" height="24" />;
-  if (type.includes('pdf')) return <Icon name='reader' width="24" height="24" />;
-  if (type.includes('csv') || type.includes('spreadsheet') || name.endsWith('.xlsx')) return <Icon name='table' width="24" height="24" />;
-  if (type.includes('json') || type.includes('zip')) return <Icon name='code' width="24" height="24" />;
-  if (name.endsWith('.zip')) return <Icon name='archive' width="24" height="24" />;
+// Safely handles both String URLs and raw JS File objects
+const getFileIcon = (fileOrUrl: File | string | null) => {
+  if (!fileOrUrl) return <Icon name='filetext' width="24" height="24" />;
+  
+  if (typeof fileOrUrl === 'string') {
+    const ext = fileOrUrl.split('.').pop()?.split('?')[0].toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext || '')) return <Icon name='image' width="24" height="24" />;
+    if (ext === 'pdf') return <Icon name='reader' width="24" height="24" />;
+    if (['csv', 'xls', 'xlsx'].includes(ext || '')) return <Icon name='table' width="24" height="24" />;
+    if (['json', 'zip'].includes(ext || '')) return <Icon name='code' width="24" height="24" />;
+    return <Icon name='filetext' width="24" height="24" />;
+  }
+
+  const { type, name } = fileOrUrl;
+  if (type?.includes('image')) return <Icon name='image' width="24" height="24" />;
+  if (type?.includes('pdf')) return <Icon name='reader' width="24" height="24" />;
+  if (type?.includes('csv') || type?.includes('spreadsheet') || name?.endsWith('.xlsx')) return <Icon name='table' width="24" height="24" />;
+  if (type?.includes('json') || type?.includes('zip') || name?.endsWith('.zip')) return <Icon name='archive' width="24" height="24" />;
+  
   return <Icon name='filetext' width="24" height="24" />;
 };
 
@@ -133,7 +146,8 @@ export const File = ({
   const fieldTouched = getIn(touched, alias);
   const fieldError = getIn(errors, alias);
   
-  const selectedFile: File | null = fieldValue;
+  // Accept both files and URL strings safely
+  const selectedFile: globalThis.File | string | null = fieldValue;
   const hasError = Boolean(fieldTouched && fieldError);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -158,14 +172,24 @@ export const File = ({
 
   // Preview URL generator
   useEffect(() => {
-    if (!selectedFile || !selectedFile.type.startsWith('image/')) {
+    if (!selectedFile) {
       setPreviewUrl(null);
       return; 
     }
-    const url = URL.createObjectURL(selectedFile);
-    setPreviewUrl(url);
 
-    return () => URL.revokeObjectURL(url);
+    if (typeof selectedFile === 'string') {
+      const isImageUrl = ['jpg', 'jpeg', 'png', 'gif', 'webp'].some(ext => selectedFile.toLowerCase().includes(`.${ext}`)) || selectedFile.startsWith('data:image') || selectedFile.includes('unsplash.com');
+      setPreviewUrl(isImageUrl ? selectedFile : null);
+      return;
+    }
+
+    if (selectedFile instanceof globalThis.File && selectedFile.type.startsWith('image/')) {
+      const url = URL.createObjectURL(selectedFile);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreviewUrl(null);
+    }
   }, [selectedFile]);
 
   useEffect(() => {
@@ -213,8 +237,8 @@ export const File = ({
     backgroundColor: 'var(--neu-bg)',
     color: hasError ? 'var(--red-9)' : 'var(--neu-text)',
     boxShadow: !selectedFile 
-       ? 'inset 3px 3px 6px var(--neu-shadow-dark), inset -3px -3px 6px var(--neu-shadow-light)'
-       : '6px 6px 12px var(--neu-shadow-dark), -6px -6px 12px var(--neu-shadow-light)',
+        ? 'inset 3px 3px 6px var(--neu-shadow-dark), inset -3px -3px 6px var(--neu-shadow-light)'
+        : '6px 6px 12px var(--neu-shadow-dark), -6px -6px 12px var(--neu-shadow-light)',
     border: 'none',
     ...neuVars,
   };
@@ -239,13 +263,13 @@ export const File = ({
       />
 
       <div 
-        onClick={() => inputRef.current?.click()}
-        style={activeStyle}
+        onClick={() => !readOnly && inputRef.current?.click()}
+        style={{...activeStyle, cursor: readOnly ? 'default' : 'pointer'}}
         onMouseEnter={(e) => {
-           if (inputtype === 'fileinput-outline') e.currentTarget.style.borderColor = 'var(--accent-9)';
+            if (!readOnly && inputtype === 'fileinput-outline') e.currentTarget.style.borderColor = 'var(--accent-9)';
         }}
         onMouseLeave={(e) => {
-           if (inputtype === 'fileinput-outline') e.currentTarget.style.borderColor = hasError ? 'var(--red-9)' : 'var(--gray-8)';
+            if (!readOnly && inputtype === 'fileinput-outline') e.currentTarget.style.borderColor = hasError ? 'var(--red-9)' : 'var(--gray-8)';
         }}
       >
         
@@ -276,29 +300,38 @@ export const File = ({
                     backgroundColor: 'var(--accent-3)', color: 'var(--accent-9)',
                     borderRadius: 6, flexShrink: 0
                 }}>
-                    {getFileIcon(selectedFile.type, selectedFile.name)}
+                    {getFileIcon(selectedFile)}
                 </Box>
             )}
 
             <Flex direction="column" style={{ flexGrow: 1, minWidth: 0, overflow: 'hidden' }}>
                 <Text size="2" weight="bold" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {selectedFile.name}
+                    {typeof selectedFile === 'string' ? selectedFile.split('/').pop()?.split('?')[0] : selectedFile.name}
                 </Text>
                 <Flex gap="2" align="center">
-                    <Text size="1" color="gray">{formatBytes(selectedFile.size)}</Text>
-                    <Badge size="1" color="gray" variant="soft">{selectedFile.name.split('.').pop()?.toUpperCase()}</Badge>
+                    {typeof selectedFile !== 'string' && (
+                        <Text size="1" color="gray">{formatBytes(selectedFile.size)}</Text>
+                    )}
+                    <Badge size="1" color="gray" variant="soft">
+                        {typeof selectedFile === 'string' 
+                            ? (selectedFile.split('.').pop()?.split('?')[0].toUpperCase() || 'FILE')
+                            : (selectedFile.name.split('.').pop()?.toUpperCase() || 'FILE')
+                        }
+                    </Badge>
                 </Flex>
             </Flex>
 
-            <IconButton 
-                size="1" 
-                variant="ghost" 
-                color="red" 
-                onClick={handleClear}
-                style={{ borderRadius: '50%', padding: 4 }}
-            >
-                <Icon name='close' width="16" height="16" />
-            </IconButton>
+            {!readOnly && (
+                <IconButton 
+                    size="1" 
+                    variant="ghost" 
+                    color="red" 
+                    onClick={handleClear}
+                    style={{ borderRadius: '50%', padding: 4 }}
+                >
+                    <Icon name='close' width="16" height="16" />
+                </IconButton>
+            )}
           </Flex>
         )}
       </div>

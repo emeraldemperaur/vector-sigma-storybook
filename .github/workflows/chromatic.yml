@@ -8,7 +8,7 @@ on:
 jobs:
   chromatic:
     name: "Build & Publish VΣ xForm Component Library"
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout VΣ xForm Storybook repository
         uses: actions/checkout@v4

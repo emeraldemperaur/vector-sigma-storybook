@@ -1,0 +1,191 @@
+import React from 'react';
+import { Box, Flex, Text, AspectRatio } from '@radix-ui/themes';
+import { Icon } from './icons';
+
+export type ImageDesign = 'outline' | 'material' | 'neumorphic';
+export type ImageLayout = 'normal' | 'rounded' | 'squared';
+
+export interface ImageDisplayProps {
+   /**
+   * * The required unique identifier for the ImageOutput component. 
+   * * @example
+   * id="profileImage"
+   */
+  id: string | number;
+  /**
+   * * The required source or url file path for the ImageOutput component. 
+   * * @example
+   * src="https://www.mekaegwim.ca/logo.png"
+   */
+  src: string;
+   /**
+   * * The optional alternative text for ImageOutput component accessibility
+   * * @example
+   * src="https://www.mekaegwim.ca/logo.png"
+   */
+  alt?: string;
+  /**
+   * * The design variation of the ImageOutput component. 
+   * Default: 'outline' 
+   * Variants: 'outline', 'material', 'neumorphic'.
+   * * @example
+   * design="neumorphic"
+   */
+  design?: ImageDesign  & {};
+   /**
+   * * The layout variation of the ImageOutput component. 
+   * Default: 'normal' 
+   * Variants: 'normal', 'rounded', 'squared'.
+   * * @example
+   * design="rounded"
+   */
+  layout?: ImageLayout  & {};
+   /**
+   * * The aspect ratio of the ImageOutput component. 
+   * * @example
+   * aspectratio={ 16 / 9 || 4 / 3 }
+   */
+  aspectratio?: number; 
+  /**
+   * * Option to specify a height for ImageOutput component.
+   * * @example
+   * preview
+   */
+  height?: string | number; 
+  /**
+   * * Option to specify a width for ImageOutput component.
+   * * @example
+   * preview
+   */
+  width?: string | number;
+  /**
+   * * Option to specify the .scss class selector for the ImageOutput component.
+   * * @example
+   * className="teletraan-1-image"
+   */
+  className?: string;
+  /**
+   * * Option to inject custom CSS the ImageOutput component.
+   * * @example
+   * style={{ color: "#000000" }}
+   */
+  style?: React.CSSProperties;
+  /**
+    * * onClick event handler function for ImageOutput component.
+    * * @example
+    * onClick={onClickHandlerFunction}
+    */
+  onClick?: () => void;
+}
+
+const getStyles = (design: ImageDesign, layout: ImageLayout): React.CSSProperties => {
+  let borderRadius = 'var(--radius-3)'; 
+  if (layout === 'squared') borderRadius = '0';
+  if (layout === 'rounded') borderRadius = '16px';
+
+  let visualStyles: React.CSSProperties = {};
+
+  if (design === 'neumorphic') {
+    visualStyles = {
+      backgroundColor: '#e0e5ec',
+      border: 'none',
+      boxShadow: '9px 9px 16px rgb(163,177,198,0.6), -9px -9px 16px rgba(255,255,255, 0.5)',
+    };
+  } else if (design === 'material') {
+    visualStyles = {
+      backgroundColor: 'var(--gray-2)',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      border: '1px solid var(--gray-4)',
+    };
+  } else {
+    visualStyles = {
+      backgroundColor: 'var(--gray-1)',
+      border: '1px solid var(--gray-6)',
+    };
+  }
+
+  return {
+    borderRadius,
+    ...visualStyles,
+    overflow: 'hidden', 
+    display: 'block', 
+ 
+  };
+};
+
+export const ImageOutput = ({
+  id, src, 
+  alt = "Image",
+  design = 'outline',
+  layout = 'normal',
+  aspectratio, 
+  height,
+  width = '100%',
+  className,
+  style,
+  onClick,
+}: ImageDisplayProps) => {
+  const containerStyles = getStyles(design, layout);
+  const iconColor = design === 'neumorphic' ? '#555' : 'var(--gray-9)';
+
+  const content = (
+    <Box
+      className={className}
+      style={{
+        ...containerStyles,
+        width: '100%',
+        maxWidth: 500, 
+        maxHeight: 500,
+        height: height || 'auto', 
+        ...style,
+      }}
+      onClick={onClick}
+    >
+      {src ? (
+        <img
+          id={String(id)}
+          src={src}
+          alt={alt}
+          style={{
+            width: '100%',
+            maxHeight: 500,
+            height: height ? '100%' : 'auto', 
+            objectFit: 'contain', 
+            display: 'block',
+          }}
+        />
+      ) : (
+        <Flex
+          align="center"
+          justify="center"
+          style={{
+            width: '100%',
+            height: height || '150px',
+            backgroundColor: design === 'neumorphic' ? 'transparent' : 'var(--gray-3)',
+          }}
+        >
+          <Flex direction="column" align="center" gap="2">
+            <Icon name='image' width="32" height="32" color={iconColor} style={{ opacity: 0.5 }} />
+            <Text size="1" color="gray">No Image</Text>
+          </Flex>
+        </Flex>
+      )}
+    </Box>
+  );
+
+  if (aspectratio && !height) {
+    return (
+      <Box style={{ width, maxWidth: 500 }}>
+        <AspectRatio ratio={aspectratio}>
+          {content}
+        </AspectRatio>
+      </Box>
+    );
+  }
+
+  return (
+    <Box style={{ width, maxWidth: 500 }}>
+      {content}
+    </Box>
+  );
+};

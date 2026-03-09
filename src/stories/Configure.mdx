@@ -1,0 +1,304 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+import Github from "./assets/github.svg";
+import Discord from "./assets/discord.svg";
+import Youtube from "./assets/youtube.svg";
+import Tutorials from "./assets/tutorials.svg";
+import Styling from "./assets/architectural_theming.png";
+import Context from "./assets/headless_instance_control.png";
+import Assets from "./assets/aria_compliance.png";
+import Docs from "./assets/interactive_codex.png";
+import Share from "./assets/share.png";
+import FigmaPlugin from "./assets/figma-plugin.png";
+import Testing from "./assets/schema_validation.png";
+import Accessibility from "./assets/zero_bloat_architecture.png";
+import Theming from "./assets/native_dark_mode.png";
+import AddonLibrary from "./assets/addon-library.png";
+
+export const RightArrow = () => <svg 
+  viewBox="0 0 14 14" 
+  width="8px" 
+  height="14px" 
+  style={{ 
+    marginLeft: '4px',
+    display: 'inline-block',
+    shapeRendering: 'inherit',
+    verticalAlign: 'middle',
+    fill: 'currentColor',
+    'path fill': 'currentColor'
+  }}
+>
+  <path d="m11.1 7.35-5.5 5.5a.5.5 0 0 1-.7-.7L10.04 7 4.9 1.85a.5.5 0 1 1 .7-.7l5.5 5.5c.2.2.2.5 0 .7Z" />
+</svg>
+
+<Meta title="χForm Components" />
+
+<div className="sb-container">
+  <div className='sb-section-title'>
+    # χForm Components Library
+
+    VectorSigma's χForm Components library is a lightweight, extensible and **ARIA-compliant** React form component library. Designed for a vanguard developer experience (DX), it decouples form state from UI, allowing you to build highly accessible, visually stunning forms with minimal code.
+  </div>
+  <div className="sb-section">
+    <div className="sb-section-item">
+      <img
+        src={Styling}
+        alt="Theming and UI styling"
+      />
+      <h4 className="sb-section-item-heading">Architectural Theming</h4>
+      <p className="sb-section-item-paragraph">Built-in support for Material, Outline, and Neumorphic design variants. Easily adapt components to any brand identity using strict, scalable design tokens.</p>
+      <a
+        href="https://www.radix-ui.com/themes/docs/theme/overview" target="_blank"
+      >Explore Themes<RightArrow /></a>
+    </div>
+    <div className="sb-section-item">
+      <img
+        src={Context}
+        alt="Headless form state abstraction"
+      />
+      <h4 className="sb-section-item-heading">Headless Instance Control</h4>
+      <p className="sb-section-item-paragraph">Take complete control of your forms from anywhere in your app. Trigger validations, inject mock data, and handle submissions completely outside the form DOM.</p>
+      <a
+        href="https://formik.org/docs/api/formik" target="_blank"
+      >View Formik Actions<RightArrow /></a>
+    </div>
+    <div className="sb-section-item">
+      <img src={Assets} alt="Accessibility and ARIA compliance" />
+      <div>
+        <h4 className="sb-section-item-heading">Strict ARIA Compliance</h4>
+        <p className="sb-section-item-paragraph">Every input, select, and checkbox is engineered with native screen-reader support, dynamic aria-labels, and flawless keyboard navigation out of the box.</p>
+        <a
+          href="https://www.a11yproject.com/checklist/" target="_blank"
+        >Read A11y Guidelines<RightArrow /></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="sb-container">
+  <div className='sb-section-title'>
+    # DX Features
+
+    Discover how VectorSigma leverages χForm components to handle complex data architectures, real-time validation and multi-step form configurations.
+  </div>
+
+  <div className="sb-section">
+    <div className="sb-features-grid">
+      <div className="sb-grid-item">
+        <img src={Docs} alt="Interactive component documentation" />
+        <h4 className="sb-section-item-heading">Interactive Codex</h4>
+        <p className="sb-section-item-paragraph">Use our live documentation to tweak props, inject themes, and see how the components react in real-time.</p>
+      </div>
+      <div className="sb-grid-item">
+        <img src={Testing} alt="Form validation and testing" />
+        <h4 className="sb-section-item-heading">Schema Validation</h4>
+        <p className="sb-section-item-paragraph">Seamlessly integrates with Yup and Formik for bulletproof, real-time input validation and error handling.</p>
+      </div>
+      <div className="sb-grid-item">
+        <img src={Theming} alt="Dark mode support" />
+        <h4 className="sb-section-item-heading">Native Dark Mode</h4>
+        <p className="sb-section-item-paragraph">Every component is engineered with dedicated dark-mode CSS variables for seamless theme switching.</p>
+      </div>
+      <div className="sb-grid-item">
+        <img src={Accessibility} alt="Accessibility features" />
+        <h4 className="sb-section-item-heading">Zero-Bloat Architecture</h4>
+        <p className="sb-section-item-paragraph">Import only what you need. Built on top of Radix UI to ensure minimal bundle sizes and maximum performance.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className='sb-addon'>
+  <div className='sb-addon-text'>
+    <h4>Developer Resources</h4>
+    <p className="sb-section-item-paragraph">Check out the GitHub repository for implementation guides, advanced xForm integrations, and issue tracking.</p>
+    <a
+        href="https://github.com/emeraldemperaur/vector-sigma"
+        target="_blank"
+      >View Repository<RightArrow /></a>
+  </div>
+  <div className='sb-addon-img'>
+    <img src={AddonLibrary} alt="VectorSigma resource library" />
+  </div>
+</div>
+
+<style>
+  {`
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap');
+
+  .sb-container, .sb-addon, .sb-section-title {
+    font-family: 'Libre Baskerville', sans-serif;
+  }
+
+  .sb-container {
+    margin-bottom: 48px;
+  }
+
+  .sb-section {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+  }
+
+  img {
+    object-fit: cover;
+  }
+
+  .sb-section-title {
+    margin-bottom: 32px;
+  }
+  
+  .sb-section-title h1 {
+    font-family: 'Libre Baskerville', sans-serif;
+    font-weight: 700;
+  }
+
+  .sb-section a:not(h1 a, h2 a, h3 a) {
+    font-family: 'Libre Baskerville', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #800020; /* VectorSigma Ruby Accent */
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  .sb-section a:not(h1 a, h2 a, h3 a):hover {
+    color: #4a0012;
+  }
+
+  .sb-section-item, .sb-grid-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  
+  /* Adds a sleek hover effect to the cards */
+  .sb-section-item:hover, .sb-grid-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    border-color: rgba(128, 0, 32, 0.2);
+  }
+
+  .sb-section-item-heading {
+    padding-top: 20px !important;
+    padding-bottom: 5px !important;
+    margin: 0 !important;
+    font-family: 'Libre Franklin', sans-serif;
+    font-weight: 600;
+  }
+  
+  .sb-section-item-paragraph {
+    margin: 0;
+    padding-bottom: 16px;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: 'Libre Franklin', sans-serif;
+    font-weight: 400;
+  }
+
+  .sb-chevron {
+    margin-left: 5px;
+  }
+
+  .sb-features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 24px;
+  }
+
+  .sb-addon {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    height: 180px;
+    margin-bottom: 48px;
+    overflow: hidden;
+  }
+
+  .sb-addon-text {
+    padding-left: 48px;
+    max-width: 300px;
+  }
+
+  .sb-addon-text h4 {
+    padding-top: 0px;
+    font-family: 'Libre Franklin', sans-serif;
+    font-weight: 600;
+  }
+
+  .sb-addon-img {
+    position: absolute;
+    left: 400px;
+    top: 0;
+    height: 100%;
+    width: 200%;
+    overflow: hidden;
+  }
+
+  .sb-addon-img img {
+    width: 650px;
+    transform: rotate(-15deg);
+    margin-left: 40px;
+    margin-top: -72px;
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0);
+    backface-visibility: hidden;
+  }
+
+  @media screen and (max-width: 800px) {
+    .sb-addon-img {
+      left: 300px;
+    }
+  }
+
+  @media screen and (max-width: 600px) {
+    .sb-section {
+      flex-direction: column;
+    }
+
+    .sb-features-grid {
+      grid-template-columns: repeat(1, 1fr);
+    }
+
+    .sb-addon {
+      height: 280px;
+      align-items: flex-start;
+      padding-top: 32px;
+      overflow: hidden;
+    }
+
+    .sb-addon-text {
+      padding-left: 24px;
+    }
+
+    .sb-addon-img {
+      right: 0;
+      left: 0;
+      top: 130px;
+      bottom: 0;
+      overflow: hidden;
+      height: auto;
+      width: 124%;
+    }
+
+    .sb-addon-img img {
+      width: 1200px;
+      transform: rotate(-12deg);
+      margin-left: 0;
+      margin-top: 48px;
+      margin-bottom: -40px;
+      margin-left: -24px;
+    }
+  }
+  `}
+</style>

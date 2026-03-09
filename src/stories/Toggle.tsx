@@ -1,0 +1,313 @@
+import React, { useEffect, useRef, useState } from "react";
+import * as TogglePrimitive from '@radix-ui/react-toggle';
+import { type FormikContextType, useFormikContext, getIn } from 'formik';
+import { Button, Text, Tooltip } from '@radix-ui/themes'; 
+import type { ButtonProps } from '@radix-ui/themes';
+import { adjustColor, getNearestParentBackground } from "../utils/vinci";
+import { Column } from "../components/layouts/column/column";
+import { Icon } from "../components/icons/icons";
+import '../styles/main.scss';
+
+export type ToggleDesign = 'toggle' | 'toggle-material' | 'toggle-outline' | 'toggle-neumorphic';
+
+interface ToggleProps extends ButtonProps {
+   /**
+     * * The required unique identifier for the Toggle input field in useFormikContext(). 
+     * Alias referenced as `name` attribute and Formik state key.
+     * * @example
+     * alias="numberOfRentalRooms"
+     */
+  alias: string;
+  /**
+    * * The design variation of the Toggle input field. 
+    * Default: 'slider-outline' 
+    * Variants: 'slider', 'slider-outline', 'slider-material', 'slider-neumorphic'.
+    * * @example
+    * inputtype="slider-neumorphic"
+    */
+  inputtype?: ToggleDesign & {};
+  /**
+    * * The optional input label or description for the Toggle input field. 
+    * * @example
+    * inputLabel="Enable VΣ AI Insights"
+    */
+  inputLabel?: string;
+  /**
+    * * The required viewport column width for the Toggle input field.
+    * i.e. 1 - 12
+    * * @example
+    * width={5}
+    */ 
+  width: number;
+  /**
+    * * Option to render Toggle input field on new row.
+    * * @example
+    * newRow
+    */
+  newRow?: boolean;
+  /**
+    * * Option to disable edits for Toggle input field.
+    * * @example
+    * readOnly
+    */
+  readOnly?: boolean;
+  /**
+    * * Option to enable a hint for Toggle input field.
+    * * @example
+    * isHinted
+    */
+
+  isHinted?: boolean;
+  /**
+    * * Option to specify hint text for Toggle input field.
+    * * @example
+    * hintText="This is a hint for a VΣ Toggle input"
+    */
+  hintText?: string;
+  /**
+    * * Option to specify a hint url reference or resource for Toggle input field.
+    * * @example
+    * hintUrl="https://www.mekaegwim.ca"
+    */ 
+  hintUrl?: string;
+  /**
+    * * Option to specify an Icon name for Toggle input field.
+    * e.g. `sun`, `moon`
+    * Defaults to `stack` icon if `name` not provided
+    * * @example
+    * icon="star"
+    */ 
+  icon?: string;
+  /**
+    * * Option to specify the isRequired error text for the Toggle input field.
+    * * @example
+    * errorText="A toggled selection is required"
+    */
+  errorText?: React.ReactNode | string | null;
+  /**
+   * * Optional explicit Formik context. Useful when bypassing duplicate 
+   * context issues in monorepos or bundled npm packages.
+   */
+  formikContext?: FormikContextType<any>;
+}
+
+/** Toggle component for `boolean` input */
+export const Toggle = ({
+  inputtype = 'toggle-neumorphic',
+  alias, 
+  readOnly, 
+  width, 
+  inputLabel,
+  style,
+  children,
+  newRow,
+  isHinted,
+  hintText,
+  hintUrl, 
+  errorText,
+  icon = 'layers',
+  formikContext,
+  ...props
+}: ToggleProps) => {
+  
+  const defaultFormikContext = useFormikContext<any>();
+  
+  const activeContext = formikContext || defaultFormikContext;
+
+  if (!activeContext) {
+      console.error(`xForm Toggle '${alias}' must be used within a Formik context provider or receive a formikContext prop.`);
+      return null; 
+  }
+
+  const { values, touched, errors, setFieldValue, setFieldTouched } = activeContext;
+  const fieldValue = getIn(values, alias) || false;
+  const fieldTouched = getIn(touched, alias);
+  const fieldError = getIn(errors, alias);
+  const hasError = Boolean(fieldTouched && fieldError);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [neuVars, setNeuVars] = useState<React.CSSProperties>({
+      '--neu-bg': '#ecf0f3',
+      '--neu-shadow-light': '#ffffff',
+      '--neu-shadow-dark': '#d1d9e6'
+  } as React.CSSProperties);
+
+  useEffect(() => {
+    if (inputtype === 'toggle-neumorphic' && containerRef.current) {
+      const parentBg = getNearestParentBackground(containerRef.current.parentElement);
+      if (parentBg && parentBg !== 'transparent') {
+          setNeuVars({
+            '--neu-bg': parentBg,
+            '--neu-shadow-dark': adjustColor(parentBg, -20), 
+            '--neu-shadow-light': adjustColor(parentBg, 20), 
+          } as React.CSSProperties);
+      }
+    }
+  }, [inputtype]);
+
+  const materialStyle: React.CSSProperties = {
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    fontWeight: 600,
+    borderRadius: '4px',
+    transition: 'all 0.2s ease',
+  };
+
+  const outlineStyle: React.CSSProperties = {
+    fontWeight: 600,
+    background: 'transparent',
+    transition: 'all 0.1s ease',
+  };
+
+  const handleToggle = (val: boolean) => {
+    if (!readOnly) {
+        setFieldValue(alias, val);
+        setFieldTouched(alias, true, false);
+    }
+  };
+
+  const iconColor = fieldValue && !readOnly ? 'var(--accent-9)' : 'var(--gray-8)';
+
+  return (
+    <Column span={width} newLine={newRow}>
+      <div ref={containerRef} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        
+        {inputtype === 'toggle-neumorphic' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div 
+                    className="neu-toggle-wrapper"
+                    style={{ ...neuVars, opacity: readOnly ? 0.6 : 1, pointerEvents: readOnly ? 'none' : 'auto' }}
+                    onClick={() => handleToggle(!fieldValue)}
+                >
+                    <style dangerouslySetInnerHTML={{__html: `
+                        .neu-toggle-wrapper {
+                            isolation: isolate;
+                            position: relative;
+                            height: 30px;
+                            width: 60px;
+                            border-radius: 15px;
+                            overflow: hidden;
+                            cursor: pointer;
+                            background: var(--neu-bg);
+                            box-shadow:
+                                -8px -4px 8px 0px var(--neu-shadow-light),
+                                8px 4px 12px 0px var(--neu-shadow-dark),
+                                4px 4px 4px 0px var(--neu-shadow-dark) inset,
+                                -4px -4px 4px 0px var(--neu-shadow-light) inset;
+                        }
+                        
+                        .neu-toggle-state {
+                            display: none;
+                        }
+
+                        .neu-indicator {
+                            height: 100%;
+                            width: 200%;
+                            background: var(--neu-bg);
+                            border-radius: 15px;
+                            transform: translate3d(-75%, 0, 0);
+                            transition: transform 0.4s cubic-bezier(0.85, 0.05, 0.18, 1.35);
+                            box-shadow:
+                                -8px -4px 8px 0px var(--neu-shadow-light),
+                                8px 4px 12px 0px var(--neu-shadow-dark);
+                        }
+
+                        .neu-toggle-state:checked ~ .neu-indicator {
+                            transform: translate3d(25%, 0, 0);
+                        }
+                    `}} />
+
+                    <input 
+                        id={`${alias}FormInput`}
+                        className="neu-toggle-state" 
+                        type="checkbox" 
+                        checked={!!fieldValue} 
+                        readOnly 
+                    />
+                    <div className="neu-indicator"></div>
+                </div>
+                <Icon 
+                    name={icon} 
+                    height="20" 
+                    width="20" 
+                    color={iconColor}
+                    style={{ 
+                        transition: 'color 0.3s ease',
+                        opacity: readOnly ? 0.5 : 1, 
+                        cursor: 'pointer'
+                    }}
+                    onClick={() => handleToggle(!fieldValue)}
+                />
+            </div>
+        ) : (
+            <TogglePrimitive.Root
+                pressed={fieldValue}
+                onPressedChange={handleToggle}
+                name={alias}
+                disabled={readOnly}
+                id={`${alias}FormInput`}
+                aria-describedby={`${alias}InputLabel`}
+                asChild
+            >
+                <Button
+                    disabled={readOnly}
+                    {...props}
+                    className={`design-toggle ${inputtype} ${props.className || ''}`}
+                    style={{
+                        ...style,
+                        ...(inputtype === 'toggle' ? materialStyle : {}),
+                        ...(inputtype === 'toggle-material' ? materialStyle : {}),
+                        ...(inputtype === 'toggle-outline' ? outlineStyle : {}),
+                    }}
+                    type="button" 
+                >
+                    <style dangerouslySetInnerHTML={{__html: `
+                        .design-toggle.toggle-material[data-state='on'] {
+                            background-color: var(--accent-9);
+                            color: white;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                        }
+                        .design-toggle.toggle-material[data-state='off'] {
+                            background-color: var(--gray-3);
+                            color: var(--gray-11);
+                        }
+                        .design-toggle.toggle-outline[data-state='on'] {
+                            border: 2px solid var(--accent-9);
+                            color: var(--accent-9);
+                            background-color: var(--accent-2);
+                        }
+                        .design-toggle.toggle-outline[data-state='off'] {
+                            border: 1px solid var(--gray-7);
+                            color: var(--gray-11);
+                        }
+                    `}} />
+                    {children}
+                </Button>
+            </TogglePrimitive.Root>
+        )}
+
+        <div>
+            {inputLabel && (
+                <Text id={`${alias}InputLabel`} as="label" size="2" weight="bold" htmlFor={`${alias}FormInput`}>
+                    {inputLabel}
+                </Text>
+            )}
+            &nbsp;
+            {isHinted && (
+                <Tooltip content={hintText || "No hint available"}>
+                    <a href={hintUrl || ""} target="_blank" rel="noopener noreferrer" style={{ marginLeft: 6 }}>
+                        <Icon name="questionmarkcircled" height="16" width="16" style={{ cursor: 'pointer', color: 'gray' }} />
+                    </a> 
+                </Tooltip>
+            )} 
+
+            {hasError && (
+                <Text size="1" color="red" style={{ display: 'block', marginTop: 2 }}>
+                    {errorText || fieldError || `Required field`}
+                </Text>
+            )}
+        </div>
+      </div>
+    </Column>
+  );
+};

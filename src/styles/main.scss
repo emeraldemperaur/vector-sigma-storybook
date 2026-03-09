@@ -1,0 +1,65 @@
+@layer radix, custom;
+
+@import "@radix-ui/themes/styles.css" layer(radix);
+
+@layer custom {  
+
+    $text-main: #333333; // Your SCSS variable
+
+    :root {
+    // Expose it to the browser/React
+    --text-main-color: #{$text-main}; 
+    }
+
+    .core-input-label{
+    text-align: start;
+    }
+    .core-input-label-error{
+    margin-bottom: 13px;
+    font-family: 'Montserrat';
+    color: #800020;
+    font-weight: 500;
+    font-size: 0.8rem;
+    letter-spacing: 0.13em;
+    }
+
+    .core-input-section-ribbon{
+    border-radius: 0px;
+    margin-top: 33px;
+    margin-bottom: 33px;
+    }
+
+    .core-input-section-text{
+        font-family: 'Montserrat' !important;
+        font-weight: 400;
+        letter-spacing: 0.33em;
+        margin-left: 13px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        text-align: left;
+    }
+
+    .input-material {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    border-bottom: 2px solid var(--gray-6) !important;
+    
+    &:focus-within {
+        border-bottom-color: var(--accent-9) !important;
+    }
+    }
+
+    .input-neumorphic {
+    border: none !important;
+    border-radius: 12px !important;
+    background: #e0e5ec !important; // Adjust to match your background
+    box-shadow: 5px 5px 10px #b8b9be, -5px -5px 10px #ffffff !important;
+
+    &:focus-within {
+        box-shadow: inset 5px 5px 10px #b8b9be, inset -5px -5px 10px #ffffff !important;
+    }
+    }
+
+
+}

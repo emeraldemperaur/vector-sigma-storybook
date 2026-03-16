@@ -3,8 +3,7 @@
 [![NPM Version](https://img.shields.io/npm/v/@emeraldemperaur/vector-sigma.svg)](https://www.npmjs.com/package/@emeraldemperaur/vector-sigma)
 ![Changesets](https://img.shields.io/badge/maintained%20with-changesets-176de3?style=flat-square&logo=changesets&logoColor=white) 
 [![Release Status](https://github.com/emeraldemperaur/vector-sigma/actions/workflows/release.yml/badge.svg)](https://github.com/emeraldemperaur/vector-sigma/actions)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR_API_ID/deploy-status)](https://app.netlify.com/sites/YOUR_SITE_NAME/deploys)
-![Lerna](https://img.shields.io/github/lerna-json/v/user/repo?style=flat-square&logo=lerna)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/c683bbd3-f4d6-4a70-9e0f-4e980a371d00/deploy-status)](https://app.netlify.com/sites/vector-sigma/deploys)
 
 
 ### Overview
@@ -30,8 +29,7 @@ Fields, Input Validation and Submission callback() can be defined and parametize
 
 ### Documentation
 <ul>
-<li><a href="#">VΣ Documentation</a></li>
-<li><a href="#">χForm Components Storybook</a></li>
+<li><a href="https://vector-sigma.netlify.app/" target="_blank">VΣ Documentation</a></li>
 <li><a href="https://github.com/emeraldemperaur/vector-sigma">VΣ Repository</a></li>
 <ul>
 

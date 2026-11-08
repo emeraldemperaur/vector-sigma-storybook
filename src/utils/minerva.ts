@@ -1,4 +1,4 @@
-import { XFormType, XFormQuery } from "./voltron";
+import type { XFormType, XFormQuery } from "./voltron";
 
 /**
  * Utility to convert string to camelCase (e.g., "USER NAME" -> "userName", "user_profile" -> "userProfile")

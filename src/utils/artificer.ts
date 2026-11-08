@@ -1,4 +1,4 @@
-import { XFormType } from "./voltron";
+import { type XFormType } from "./voltron";
 
 export const xFormPrototypeData: XFormType = {
   uuid: "mock-a-uuid-for-me",

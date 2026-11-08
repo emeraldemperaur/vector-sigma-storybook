@@ -1,9 +1,9 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Text } from '@radix-ui/themes';
-import { Container } from './container';
-import { Row } from './row';
-import { Column } from './column';
+import { Container } from './Container';
+import { Row } from './Row';
+import { Column } from './Column';
 
 const MockCard = ({ 
   children, 
@@ -50,6 +50,7 @@ const meta: Meta<typeof Container> = {
   component: Container,
   tags: ['autodocs'],
   parameters: {
+    layout: 'padded',
     docs: {
       description: {
         component: `
@@ -64,6 +65,21 @@ import { Container, Row, Column } from '@emeraldemperaur/vector-sigma';
 \`\`\`
         `,
       },
+      source: {
+        transform: (code: string) => {
+          if (code.includes("import { Container, Row, Column }")) {
+            return code;
+          }
+          return `import { Container, Row, Column } from '@emeraldemperaur/vector-sigma';\n\n${code}`;
+        },
+      },
+    },
+  },
+  argTypes: {
+    fluid: {
+      control: 'boolean',
+      description: 'Bypasses standard max-width constraints to allow the container to fill 100% of the parent width.',
+      table: { defaultValue: { summary: 'false' } },
     },
   },
   args: {
@@ -116,21 +132,30 @@ export const ResponsiveBreakpoints: Story = {
     </Container>
   ),
 };
+
 /**
  * **Fluid Width:**
- * Setting \`fluid={true}\` allows the container to bypass Radix's max-width constraints and fill 100% of the screen width.
+ * Setting \`fluid={true}\` allows the container to bypass max-width constraints and fill 100% of the screen width.
  */
 export const FluidNeumorphicLayout: Story = {
   render: (args) => (
-    <div style={{ backgroundColor: '#e0e5ec', padding: '40px 0', width: '100%' }}>
-      <Container {...args} fluid>
-        <Row gap="6">
-          <Column span={8}><MockCard design="neumorphic">Main Content Area (span=8)</MockCard></Column>
-          <Column span={4}><MockCard design="neumorphic">Sidebar (span=4)</MockCard></Column>
-        </Row>
-      </Container>
-    </div>
+    <Container {...args}>
+      <Row gap="6">
+        <Column span={8}><MockCard design="neumorphic">Main Content Area (span=8)</MockCard></Column>
+        <Column span={4}><MockCard design="neumorphic">Sidebar (span=4)</MockCard></Column>
+      </Row>
+    </Container>
   ),
+  args: {
+    fluid: true,
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ backgroundColor: '#e0e5ec', padding: '40px', width: '100%', borderRadius: '16px', boxSizing: 'border-box' }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 /**

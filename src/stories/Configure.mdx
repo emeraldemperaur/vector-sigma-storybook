@@ -1,124 +1,191 @@
 import { Meta } from "@storybook/addon-docs/blocks";
 
-import Github from "./assets/github.svg";
-import Discord from "./assets/discord.svg";
-import Youtube from "./assets/youtube.svg";
-import Tutorials from "./assets/tutorials.svg";
-import Styling from "./assets/architectural_theming.png";
-import Context from "./assets/headless_instance_control.png";
-import Assets from "./assets/aria_compliance.png";
-import Docs from "./assets/interactive_codex.png";
-import Share from "./assets/share.png";
-import FigmaPlugin from "./assets/figma-plugin.png";
-import Testing from "./assets/schema_validation.png";
-import Accessibility from "./assets/zero_bloat_architecture.png";
-import Theming from "./assets/native_dark_mode.png";
-import AddonLibrary from "./assets/addon-library.png";
+export const RightArrow = () => (
+  <svg 
+    viewBox="0 0 14 14" 
+    width="12px" 
+    height="12px" 
+    className="vs-arrow-icon"
+    style={{ 
+      marginLeft: '6px',
+      display: 'inline-block',
+      shapeRendering: 'inherit',
+      verticalAlign: 'middle',
+      transition: 'transform 0.2s ease-in-out'
+    }}
+  >
+    <path d="m11.1 7.35-5.5 5.5a.5.5 0 0 1-.7-.7L10.04 7 4.9 1.85a.5.5 0 1 1 .7-.7l5.5 5.5c.2.2.2.5 0 .7Z" />
+  </svg>
+);
 
-export const RightArrow = () => <svg 
-  viewBox="0 0 14 14" 
-  width="8px" 
-  height="14px" 
-  style={{ 
-    marginLeft: '4px',
-    display: 'inline-block',
-    shapeRendering: 'inherit',
-    verticalAlign: 'middle',
-    fill: 'currentColor',
-    'path fill': 'currentColor'
-  }}
->
-  <path d="m11.1 7.35-5.5 5.5a.5.5 0 0 1-.7-.7L10.04 7 4.9 1.85a.5.5 0 1 1 .7-.7l5.5 5.5c.2.2.2.5 0 .7Z" />
-</svg>
+{/* THEMATIC INLINE SVGS: Inspired by oceanic line-art and geometric turtle motifs */}
+
+export const CarapaceThemeSVG = () => (
+  <svg viewBox="0 0 100 100" className="vs-artistic-svg">
+    <path d="M50 10 L85 30 L85 70 L50 90 L15 70 L15 30 Z" stroke="currentColor" strokeWidth="2" fill="none" />
+    <path d="M50 25 L72 38 L72 62 L50 75 L28 62 L28 38 Z" stroke="var(--vs-ruby)" strokeWidth="2" fill="none" />
+    <path d="M50 10 L50 25 M85 30 L72 38 M85 70 L72 62 M50 90 L50 75 M15 70 L28 62 M15 30 L28 38" stroke="currentColor" strokeWidth="1.5" />
+    <circle cx="50" cy="50" r="8" stroke="var(--vs-ruby)" strokeWidth="2" fill="none" />
+  </svg>
+);
+
+export const OceanCurrentsSVG = () => (
+  <svg viewBox="0 0 100 100" className="vs-artistic-svg">
+    <path d="M-10 50 Q 25 10, 50 50 T 110 50" stroke="currentColor" strokeWidth="2" fill="none" />
+    <path d="M-10 65 Q 25 25, 50 65 T 110 65" stroke="var(--vs-ruby)" strokeWidth="2" fill="none" opacity="0.6" />
+    <path d="M-10 35 Q 25 -5, 50 35 T 110 35" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.4" />
+    <circle cx="50" cy="50" r="4" fill="currentColor" />
+    <circle cx="23" cy="30" r="3" fill="var(--vs-ruby)" />
+    <circle cx="77" cy="70" r="3" fill="var(--vs-ruby)" />
+  </svg>
+);
+
+export const SonarWavesSVG = () => (
+  <svg viewBox="0 0 100 100" className="vs-artistic-svg">
+    <path d="M20 80 A 60 60 0 0 1 80 20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
+    <path d="M35 80 A 45 45 0 0 1 80 35" stroke="var(--vs-ruby)" strokeWidth="3" fill="none" strokeLinecap="round" />
+    <path d="M50 80 A 30 30 0 0 1 80 50" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
+    <circle cx="80" cy="80" r="6" fill="var(--vs-ruby)" />
+    <circle cx="80" cy="80" r="12" stroke="currentColor" strokeWidth="1" fill="none" />
+  </svg>
+);
+
+export const NautilusCodexSVG = () => (
+  <svg viewBox="0 0 100 100" className="vs-artistic-svg">
+    <path d="M50 50 m -5 0 a 5 5 0 1 0 10 0 a 5 5 0 1 0 -10 0 m 0 -10 a 15 15 0 1 0 30 0 a 15 15 0 1 0 -30 0 m -10 -20 a 35 35 0 1 0 70 0" stroke="currentColor" strokeWidth="2" fill="none" />
+    <path d="M50 50 m -15 0 a 15 15 0 1 0 30 0" stroke="var(--vs-ruby)" strokeWidth="2" fill="none" />
+    <circle cx="50" cy="50" r="2" fill="var(--vs-ruby)" />
+    <line x1="50" y1="50" x2="85" y2="15" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
+  </svg>
+);
+
+export const ScuteValidationSVG = () => (
+  <svg viewBox="0 0 100 100" className="vs-artistic-svg">
+    <polygon points="50,15 80,32 80,68 50,85 20,68 20,32" stroke="currentColor" strokeWidth="2" fill="none" />
+    <polygon points="50,30 65,40 65,60 50,70 35,60 35,40" stroke="var(--vs-ruby)" strokeWidth="2" fill="none" />
+    <line x1="50" y1="15" x2="50" y2="30" stroke="currentColor" strokeWidth="2" />
+    <line x1="80" y1="32" x2="65" y2="40" stroke="currentColor" strokeWidth="2" />
+    <line x1="80" y1="68" x2="65" y2="60" stroke="currentColor" strokeWidth="2" />
+    <line x1="50" y1="85" x2="50" y2="70" stroke="currentColor" strokeWidth="2" />
+    <line x1="20" y1="68" x2="35" y2="60" stroke="currentColor" strokeWidth="2" />
+    <line x1="20" y1="32" x2="35" y2="40" stroke="currentColor" strokeWidth="2" />
+  </svg>
+);
+
+export const DarkModeEclipseSVG = () => (
+  <svg viewBox="0 0 100 100" className="vs-artistic-svg">
+    <path d="M30 50 A 25 25 0 1 1 70 50 A 25 25 0 1 1 30 50" stroke="currentColor" strokeWidth="2" fill="none" />
+    <path d="M40 35 A 20 20 0 1 0 75 60 A 25 25 0 0 1 40 35 Z" fill="var(--vs-ruby)" />
+    <line x1="10" y1="80" x2="90" y2="80" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <line x1="20" y1="88" x2="80" y2="88" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+export const FluidDynamicSVG = () => (
+  <svg viewBox="0 0 100 100" className="vs-artistic-svg">
+    <path d="M10 50 Q 50 10 90 50 Q 50 40 10 50 Z" stroke="currentColor" strokeWidth="2" fill="none" />
+    <path d="M20 50 Q 50 25 80 50 Q 50 45 20 50 Z" stroke="var(--vs-ruby)" strokeWidth="1.5" fill="none" />
+    <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" strokeWidth="0.5" strokeDasharray="4 4" />
+  </svg>
+);
+
+export const WreathHorizonSVG = () => (
+  <svg viewBox="0 0 200 200" className="vs-artistic-svg-large">
+    <path d="M20 180 Q 60 100 100 180 T 180 180" stroke="var(--vs-ruby)" strokeWidth="2" fill="none" />
+    <path d="M0 160 Q 50 80 100 160 T 200 160" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.6" />
+    <circle cx="100" cy="100" r="40" stroke="currentColor" strokeWidth="2" fill="none" strokeDasharray="4 6" />
+    <circle cx="100" cy="100" r="30" stroke="var(--vs-ruby)" strokeWidth="1" fill="none" />
+    <path d="M100 70 A 30 30 0 0 1 130 100" stroke="currentColor" strokeWidth="4" fill="none" />
+  </svg>
+);
+
 
 <Meta title="χForm Components" />
 
-<div className="sb-container">
-  <div className='sb-section-title'>
-    # χForm Components Library
-
-    VectorSigma's χForm Components library is a lightweight, extensible and **ARIA-compliant** React form component library. Designed for a vanguard developer experience (DX), it decouples form state from UI, allowing you to build highly accessible, visually stunning forms with minimal code.
-  </div>
-  <div className="sb-section">
-    <div className="sb-section-item">
-      <img
-        src={Styling}
-        alt="Theming and UI styling"
-      />
-      <h4 className="sb-section-item-heading">Architectural Theming</h4>
-      <p className="sb-section-item-paragraph">Built-in support for Material, Outline, and Neumorphic design variants. Easily adapt components to any brand identity using strict, scalable design tokens.</p>
-      <a
-        href="https://www.radix-ui.com/themes/docs/theme/overview" target="_blank"
-      >Explore Themes<RightArrow /></a>
-    </div>
-    <div className="sb-section-item">
-      <img
-        src={Context}
-        alt="Headless form state abstraction"
-      />
-      <h4 className="sb-section-item-heading">Headless Instance Control</h4>
-      <p className="sb-section-item-paragraph">Take complete control of your forms from anywhere in your app. Trigger validations, inject mock data, and handle submissions completely outside the form DOM.</p>
-      <a
-        href="https://formik.org/docs/api/formik" target="_blank"
-      >View Formik Actions<RightArrow /></a>
-    </div>
-    <div className="sb-section-item">
-      <img src={Assets} alt="Accessibility and ARIA compliance" />
-      <div>
-        <h4 className="sb-section-item-heading">Strict ARIA Compliance</h4>
-        <p className="sb-section-item-paragraph">Every input, select, and checkbox is engineered with native screen-reader support, dynamic aria-labels, and flawless keyboard navigation out of the box.</p>
-        <a
-          href="https://www.a11yproject.com/checklist/" target="_blank"
-        >Read A11y Guidelines<RightArrow /></a>
-      </div>
-    </div>
+<div className="vs-hero-container">
+  <h1 className="vs-hero-title">χForm Components</h1>
+  <div className="vs-hero-subtitle">
+    VectorSigma's χForm Components library is a lightweight, extensible, and <strong>ARIA-compliant</strong> React form ecosystem. Designed for a vanguard developer experience (DX), it decouples form state from UI, orchestrating highly accessible, visually stunning forms using intricate marine-inspired geometry.
   </div>
 </div>
 
-<div className="sb-container">
-  <div className='sb-section-title'>
-    # DX Features
-
-    Discover how VectorSigma leverages χForm components to handle complex data architectures, real-time validation and multi-step form configurations.
-  </div>
-
-  <div className="sb-section">
-    <div className="sb-features-grid">
-      <div className="sb-grid-item">
-        <img src={Docs} alt="Interactive component documentation" />
-        <h4 className="sb-section-item-heading">Interactive Codex</h4>
-        <p className="sb-section-item-paragraph">Use our live documentation to tweak props, inject themes, and see how the components react in real-time.</p>
-      </div>
-      <div className="sb-grid-item">
-        <img src={Testing} alt="Form validation and testing" />
-        <h4 className="sb-section-item-heading">Schema Validation</h4>
-        <p className="sb-section-item-paragraph">Seamlessly integrates with Yup and Formik for bulletproof, real-time input validation and error handling.</p>
-      </div>
-      <div className="sb-grid-item">
-        <img src={Theming} alt="Dark mode support" />
-        <h4 className="sb-section-item-heading">Native Dark Mode</h4>
-        <p className="sb-section-item-paragraph">Every component is engineered with dedicated dark-mode CSS variables for seamless theme switching.</p>
-      </div>
-      <div className="sb-grid-item">
-        <img src={Accessibility} alt="Accessibility features" />
-        <h4 className="sb-section-item-heading">Zero-Bloat Architecture</h4>
-        <p className="sb-section-item-paragraph">Import only what you need. Built on top of Radix UI to ensure minimal bundle sizes and maximum performance.</p>
-      </div>
+<div className="vs-section">
+  <div className="vs-section-item">
+    <div className="vs-svg-wrapper">
+      <CarapaceThemeSVG />
     </div>
+    <h4 className="vs-heading">Architectural Theming</h4>
+    <div className="vs-paragraph">Built-in support for Material, Outline, and Neumorphic design variants. Easily adapt components to any brand identity using strict design tokens.</div>
+    <a href="https://www.radix-ui.com/themes/docs/theme/overview" target="_blank" className="vs-link">Explore Themes <RightArrow /></a>
+  </div>
+  
+  <div className="vs-section-item">
+    <div className="vs-svg-wrapper">
+      <OceanCurrentsSVG />
+    </div>
+    <h4 className="vs-heading">Headless Instance Control</h4>
+    <div className="vs-paragraph">Navigate form states like deep ocean currents. Trigger validations, inject mock data, and handle submissions completely outside the form DOM.</div>
+    <a href="https://formik.org/docs/api/formik" target="_blank" className="vs-link">View Formik Actions <RightArrow /></a>
+  </div>
+  
+  <div className="vs-section-item">
+    <div className="vs-svg-wrapper">
+      <SonarWavesSVG />
+    </div>
+    <h4 className="vs-heading">Strict ARIA Compliance</h4>
+    <div className="vs-paragraph">Engineered with echolocation-like precision. Every input utilizes native screen-reader support, dynamic aria-labels, and flawless keyboard navigation.</div>
+    <a href="https://www.a11yproject.com/checklist/" target="_blank" className="vs-link">Read A11y Guidelines <RightArrow /></a>
   </div>
 </div>
 
-<div className='sb-addon'>
-  <div className='sb-addon-text'>
-    <h4>Developer Resources</h4>
-    <p className="sb-section-item-paragraph">Check out the GitHub repository for implementation guides, advanced xForm integrations, and issue tracking.</p>
-    <a
-        href="https://github.com/emeraldemperaur/vector-sigma"
-        target="_blank"
-      >View Repository<RightArrow /></a>
+<div className="vs-divider" />
+
+<div className="vs-hero-container" style={{ marginBottom: '32px' }}>
+  <h2 className="vs-section-title">DX Features</h2>
+  <div className="vs-hero-subtitle" style={{ maxWidth: '800px' }}>
+    Discover how VectorSigma leverages χForm components to handle complex data architectures, real-time validation, and multi-step form orchestration natively.
   </div>
-  <div className='sb-addon-img'>
-    <img src={AddonLibrary} alt="VectorSigma resource library" />
+</div>
+
+<div className="vs-features-grid">
+  <div className="vs-grid-item">
+    <div className="vs-grid-icon">
+      <NautilusCodexSVG />
+    </div>
+    <h4 className="vs-heading">Interactive Codex</h4>
+    <div className="vs-paragraph">Use our live documentation to tweak props, inject themes, and observe component reactivity in real-time.</div>
+  </div>
+  <div className="vs-grid-item">
+    <div className="vs-grid-icon">
+      <ScuteValidationSVG />
+    </div>
+    <h4 className="vs-heading">Schema Validation</h4>
+    <div className="vs-paragraph">Seamlessly integrates with Yup and Formik for bulletproof, perfectly structured input validation matrices.</div>
+  </div>
+  <div className="vs-grid-item">
+    <div className="vs-grid-icon">
+      <DarkModeEclipseSVG />
+    </div>
+    <h4 className="vs-heading">Native Dark Mode</h4>
+    <div className="vs-paragraph">Every component is engineered with dedicated dark-mode CSS variables for seamless light-to-dark context switching.</div>
+  </div>
+  <div className="vs-grid-item">
+    <div className="vs-grid-icon">
+      <FluidDynamicSVG />
+    </div>
+    <h4 className="vs-heading">Zero-Bloat Payload</h4>
+    <div className="vs-paragraph">Streamlined architecture. Built atop Radix UI primitives to ensure minimal bundle sizes and maximum rendering performance.</div>
+  </div>
+</div>
+
+<div className="vs-cta-banner">
+  <div className="vs-cta-content">
+    <h3 className="vs-cta-heading">Developer Resources</h3>
+    <div className="vs-cta-paragraph">Review the GitHub repository for implementation guides, advanced xForm integrations, architecture decisions, and issue tracking.</div>
+    <a href="https://github.com/emeraldemperaur/vector-sigma" target="_blank" className="vs-btn">View Repository <RightArrow /></a>
+  </div>
+  <div className="vs-cta-visual">
+    <WreathHorizonSVG />
   </div>
 </div>
 
@@ -126,178 +193,297 @@ export const RightArrow = () => <svg
   {`
   @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap');
 
-  .sb-container, .sb-addon, .sb-section-title {
-    font-family: 'Libre Baskerville', sans-serif;
+  :root {
+    /* Light Mode Fundamentals */
+    --vs-ruby: #800020;
+    --vs-ruby-hover: #5a0016;
+    --vs-text-primary: #111827;
+    --vs-text-secondary: #4b5563;
+    --vs-border: rgba(0, 0, 0, 0.08);
+    --vs-bg-subtle: #f9fafb;
+    --vs-card-bg: #ffffff;
+    --vs-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --vs-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --vs-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 
-  .sb-container {
-    margin-bottom: 48px;
+  :root[data-theme='dark'] {
+    --vs-ruby: #b3002d;
+    --vs-ruby-hover: #e60039;
+    --vs-text-primary: #f9fafb;
+    --vs-text-secondary: #9ca3af;
+    --vs-border: rgba(255, 255, 255, 0.12);
+    --vs-bg-subtle: #111111;
+    --vs-card-bg: #1c1c1c;
+    --vs-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+    --vs-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+    --vs-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
   }
 
-  .sb-section {
+  /* SVG Specific Styles */
+  .vs-svg-wrapper {
     width: 100%;
+    height: 160px;
+    border-radius: 8px;
+    background: var(--vs-bg-subtle);
+    border: 1px solid var(--vs-border);
     display: flex;
-    flex-direction: row;
-    gap: 24px;
+    align-items: center;
+    justify-content: center;
+    color: var(--vs-text-primary);
+    overflow: hidden;
   }
 
-  img {
-    object-fit: cover;
-  }
-
-  .sb-section-title {
-    margin-bottom: 32px;
+  .vs-artistic-svg {
+    width: 120px;
+    height: 120px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
   
-  .sb-section-title h1 {
-    font-family: 'Libre Baskerville', sans-serif;
+  .vs-artistic-svg-large {
+    width: 100%;
+    height: 100%;
+    color: rgba(255, 255, 255, 0.15);
+  }
+
+  .vs-section-item:hover .vs-artistic-svg,
+  .vs-grid-item:hover .vs-artistic-svg {
+    transform: scale(1.08);
+  }
+
+  /* Typography Fundamentals */
+  .vs-hero-title, .vs-section-title {
+    font-family: 'Libre Baskerville', serif;
+    color: var(--vs-text-primary);
+    margin: 0 0 16px 0;
+    line-height: 1.2;
+  }
+  
+  .vs-hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .vs-section-title {
+    font-size: 1.75rem;
     font-weight: 700;
   }
 
-  .sb-section a:not(h1 a, h2 a, h3 a) {
-    font-family: 'Libre Baskerville', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: #800020; /* VectorSigma Ruby Accent */
-    text-decoration: none;
-    transition: color 0.2s ease;
-  }
-  
-  .sb-section a:not(h1 a, h2 a, h3 a):hover {
-    color: #4a0012;
-  }
-
-  .sb-section-item, .sb-grid-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    border-radius: 12px;
-    background: transparent;
-    border: 1px solid rgba(0,0,0,0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  }
-  
-  /* Adds a sleek hover effect to the cards */
-  .sb-section-item:hover, .sb-grid-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-    border-color: rgba(128, 0, 32, 0.2);
-  }
-
-  .sb-section-item-heading {
-    padding-top: 20px !important;
-    padding-bottom: 5px !important;
-    margin: 0 !important;
+  .vs-hero-subtitle {
     font-family: 'Libre Franklin', sans-serif;
-    font-weight: 600;
-  }
-  
-  .sb-section-item-paragraph {
-    margin: 0;
-    padding-bottom: 16px;
-    color: #555;
-    font-size: 14px;
+    font-size: 1.125rem;
+    color: var(--vs-text-secondary);
     line-height: 1.6;
-    font-family: 'Libre Franklin', sans-serif;
+    max-width: 900px;
+    margin: 0;
     font-weight: 400;
   }
 
-  .sb-chevron {
-    margin-left: 5px;
+  .vs-heading {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--vs-text-primary);
+    margin: 20px 0 8px 0;
   }
 
-  .sb-features-grid {
+  .vs-paragraph {
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: 0.9375rem;
+    color: var(--vs-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 20px 0;
+    flex-grow: 1;
+  }
+
+  /* Layout & Spacing */
+  .vs-hero-container {
+    margin-bottom: 48px;
+    padding-top: 24px;
+  }
+
+  .vs-divider {
+    height: 1px;
+    background-color: var(--vs-border);
+    margin: 64px 0;
+    width: 100%;
+  }
+
+  .vs-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .vs-features-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-gap: 24px;
+    gap: 24px;
+    margin-bottom: 64px;
   }
 
-  .sb-addon {
-    width: 100%;
+  /* Premium Cards */
+ .vs-section-item, .vs-grid-item {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background: var(--vs-card-bg); 
+    border: 1px solid var(--vs-border);
+    border-radius: 12px;
+    box-shadow: var(--vs-shadow-sm);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .vs-section-item:hover, .vs-grid-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--vs-shadow-hover);
+    border-color: rgba(128, 0, 32, 0.15);
+  }
+
+  .vs-grid-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    background: var(--vs-bg-subtle);
+    padding: 12px;
+    border: 1px solid var(--vs-border);
     display: flex;
     align-items: center;
-    position: relative;
-    background-color: #f8f9fa;
-    border-radius: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    height: 180px;
-    margin-bottom: 48px;
+    justify-content: center;
+    color: var(--vs-text-primary);
+  }
+
+  /* Interactive Elements */
+  .vs-link {
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--vs-ruby);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.2s ease;
+    margin-top: auto;
+  }
+
+  .vs-link:hover {
+    color: var(--vs-ruby-hover);
+  }
+
+  .vs-link:hover .vs-arrow-icon {
+    transform: translateX(4px);
+  }
+
+  /* CTA Banner */
+  .vs-cta-banner {
+    display: flex;
+    background: linear-gradient(145deg, #111827 0%, #1f2937 100%);
+    border-radius: 16px;
     overflow: hidden;
+    position: relative;
+    color: #ffffff;
+    min-height: 240px;
+    box-shadow: var(--vs-shadow-md);
   }
 
-  .sb-addon-text {
-    padding-left: 48px;
-    max-width: 300px;
+  .vs-cta-content {
+    flex: 1;
+    padding: 48px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 50%;
   }
 
-  .sb-addon-text h4 {
-    padding-top: 0px;
+  .vs-cta-heading {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    color: #ffffff;
+  }
+
+  .vs-cta-paragraph {
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #9ca3af;
+    margin: 0 0 24px 0;
+  }
+
+  .vs-btn, .vs-btn * {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+  }
+
+  .vs-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #800020 !important;
     font-family: 'Libre Franklin', sans-serif;
     font-weight: 600;
+    font-size: 0.875rem;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    width: fit-content;
   }
 
-  .sb-addon-img {
+  .vs-btn:hover {
+    background-color: #5a0016 !important;
+    transform: translateY(-1px);
+  }
+
+  .vs-btn:hover .vs-arrow-icon {
+    transform: translateX(4px);
+  }
+
+  .vs-cta-visual {
     position: absolute;
-    left: 400px;
-    top: 0;
-    height: 100%;
-    width: 200%;
-    overflow: hidden;
+    right: -15%;
+    top: -30%;
+    height: 160%;
+    width: 60%;
+    z-index: 1;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .sb-addon-img img {
-    width: 650px;
-    transform: rotate(-15deg);
-    margin-left: 40px;
-    margin-top: -72px;
-    box-shadow: 0 0 1px rgba(255, 255, 255, 0);
-    backface-visibility: hidden;
-  }
-
-  @media screen and (max-width: 800px) {
-    .sb-addon-img {
-      left: 300px;
+  /* Responsive Design */
+  @media screen and (max-width: 992px) {
+    .vs-section {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .vs-cta-content {
+      max-width: 60%;
     }
   }
 
-  @media screen and (max-width: 600px) {
-    .sb-section {
+  @media screen and (max-width: 768px) {
+    .vs-section, .vs-features-grid {
+      grid-template-columns: 1fr;
+    }
+    .vs-cta-banner {
       flex-direction: column;
     }
-
-    .sb-features-grid {
-      grid-template-columns: repeat(1, 1fr);
+    .vs-cta-content {
+      max-width: 100%;
+      padding: 32px;
     }
-
-    .sb-addon {
-      height: 280px;
-      align-items: flex-start;
-      padding-top: 32px;
-      overflow: hidden;
-    }
-
-    .sb-addon-text {
-      padding-left: 24px;
-    }
-
-    .sb-addon-img {
+    .vs-cta-visual {
+      position: absolute;
       right: 0;
-      left: 0;
-      top: 130px;
-      bottom: 0;
-      overflow: hidden;
-      height: auto;
-      width: 124%;
-    }
-
-    .sb-addon-img img {
-      width: 1200px;
-      transform: rotate(-12deg);
-      margin-left: 0;
-      margin-top: 48px;
-      margin-bottom: -40px;
-      margin-left: -24px;
+      top: auto;
+      bottom: -20%;
+      width: 100%;
+      height: 200px;
     }
   }
   `}

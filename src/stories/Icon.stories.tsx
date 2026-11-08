@@ -1,6 +1,7 @@
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Flex, Text, Grid, IconButton } from '@radix-ui/themes';
-import { Icon } from './icons';
+import { Icon } from './Icons';
 
 const supportedIcons = [
   'sun', 'moon', 'settings', 'user', 'cube', 'heart', 'backpack', 'questionmark', 'questionmarkcircled',
@@ -38,6 +39,14 @@ import { Icon } from '@emeraldemperaur/vector-sigma';
 \`\`\`
         `,
       },
+      source: {
+        transform: (code: string) => {
+          if (code.includes("import { Icon }")) {
+            return code;
+          }
+          return `import { Icon } from '@emeraldemperaur/vector-sigma';\n\n${code}`;
+        },
+      },
     },
   },
   argTypes: {
@@ -70,11 +79,14 @@ type Story = StoryObj<typeof Icon>;
  * Use the Controls panel at the bottom to test different icon names, sizes, and colors.
  */
 export const Playground: Story = {
-  render: (args) => (
-    <Flex justify="center" align="center" style={{ padding: '2rem' }}>
-      <Icon {...args} />
-    </Flex>
-  ),
+  render: (args) => <Icon {...args} />,
+  decorators: [
+    (Story) => (
+      <Flex justify="center" align="center" style={{ padding: '2rem' }}>
+        <Story />
+      </Flex>
+    ),
+  ],
 };
 
 
@@ -85,8 +97,7 @@ export const Playground: Story = {
  */
 export const Interactive: Story = {
   render: (args) => (
-    <Flex gap="4" align="center" justify="center" style={{ padding: '2rem' }}>
-      
+    <>
       <Flex direction="column" align="center" gap="2">
         <Text size="1" color="gray">Direct onClick</Text>
         <Icon 
@@ -95,8 +106,8 @@ export const Interactive: Story = {
           color="var(--red-9)" 
           onClick={() => alert('Direct SVG click registered!')} 
           style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+          onMouseEnter={(e: React.MouseEvent<SVGSVGElement>) => (e.currentTarget.style.transform = 'scale(1.2)')}
+          onMouseLeave={(e: React.MouseEvent<SVGSVGElement>) => (e.currentTarget.style.transform = 'scale(1)')}
         />
       </Flex>
 
@@ -106,9 +117,15 @@ export const Interactive: Story = {
           <Icon name="paperplane" width="20" height="20" />
         </IconButton>
       </Flex>
-
-    </Flex>
+    </>
   ),
+  decorators: [
+    (Story) => (
+      <Flex gap="4" align="center" justify="center" style={{ padding: '2rem' }}>
+        <Story />
+      </Flex>
+    ),
+  ],
 };
 
 

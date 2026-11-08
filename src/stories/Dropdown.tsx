@@ -1,127 +1,54 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Select, Flex, Text, Tooltip, Separator } from '@radix-ui/themes';
 import { adjustColor, getNearestParentBackground, type InputOption } from "../utils/vinci";
-import { Icon } from '../components/icons/icons';
-import { Column } from '../components/layouts/column/column';
+import { Icon } from './Icons';
+import { Column } from './Column';
 import { type FormikContextType, useFormikContext, getIn } from 'formik';
 import '../styles/main.scss';
 
 export type xDropDownDesign = 'dropdown' | 'dropdown-material' | 'dropdown-outline' | 'dropdown-neumorphic';
 
 export interface xDropDownProps {
-  /**
-   * * The required unique identifier for the Dropdown input field in useFormikContext(). 
-   * Alias referenced as `name` attribute and Formik state key.
-   * * @example
-   * alias="mercedesCarModels"
-   */
+  inputtype?: xDropDownDesign;
   alias: string;
-  /**
-   * * The optional input label or description for the Dropdown input field. 
-   * * @example
-   * inputLabel="Choose VΣ Auto Fleet"
-   */
   inputLabel?: string;
-   /**
-   * * The design variation of the Dropdown input. 
-   * Default: 'dropdown-outline' 
-   * Variants: 'dropdown', 'dropdown-outline', 'dropdown-material', 'dropdown-neumorphic'.
-   * * @example
-   * inputtype="dropdown-neumorphic"
-   */
-  inputtype?: xDropDownDesign & {};
-  /**
-   * * The required viewport column width for the Dropdown input field.
-   * i.e. 1 - 12
-   * * @example
-   * width={5}
-   */
   width: number;
-  /**
-   * * Option to render Dropdown input field on new row.
-   * * @example
-   * newRow
-   */
   newRow?: boolean;
-   /**
-   * * Option to force set the default value for a Dropdown input field.
-   * * @example
-   * placeholder="Select an auto model"
-   */
   placeholder?: string;
-  /**
-   * * Option to disable edits for Dropdown input field.
-   * * @example
-   * readOnly
-   */
   readOnly?: boolean;
-  /**
-     * * Option to enable a hint for Dropdown input field.
-     * * @example
-     * isHinted
-     */ 
   isHinted?: boolean;
-  /**
-   * * Option to specify hint text for Dropdown input field.
-   * * @example
-   * hintText="This is a hint for a VΣ Dropdown"
-   */ 
   hintText?: string;
-  /**
-   * * Option to specify a hint url reference or resource for Dropdown input field.
-   * * @example
-   * hintUrl="https://www.mekaegwim.ca"
-   */ 
   hintUrl?: string;
-  /**
-    * * onValueChange event handler function for Dropdown input field.
-    * * @example
-    * props.onValueChange(finalVal)
-    */
   onValueChange?: (value: string) => void;
-  /**
-   * * Option to specify the isRequired error text for the Dropdown input field.
-   * * @example
-   * errorText="VΣ resrvation dates required"
-   */
-  errorText?: React.ReactNode | string | null;
-   /**
-   * * Required  inputOptions{} for the Dropdown input field.
-   * * @example
-   * inputOptions={
-   * [
-   * {optionid: 1, optionvalue: "Kaiju", optionurl:"https://github.com/emeraldemperaur", text: "Kaiju"},
-   * {optionid: 2, optionvalue: "MekaGodzilla", optionurl:"https://github.com/emeraldemperaur", text: "MekaGodzilla"},
-   * {optionid: 3, optionvalue: "Zaibatsu", optionurl:"https://github.com/emeraldemperaur", text: "Zaibatsu"},
-   * ]}
-  */
+  errorText?: ReactNode | string | null;
   inputOptions: InputOption[];
-  /**
-   * * Option to specify the .scss class selector for the Dropdown input field.
-   * * @example
-   * className="teletraan-1-dropdown"
-   */
+  typography?: {
+    background?: string;
+    stroke?: string;
+    textColor?: string;
+    accent?: string;
+  };
   className?: string;
-  /**
-   * * Option to inject custom CSS for the Dropdown input field.
-   * * @example
-   * style={{ color: "#000000" }}
-   */
   style?: React.CSSProperties;
-  /**
-   * * Optional explicit Formik context. Useful when bypassing duplicate 
-   * context issues in monorepos or bundled npm packages.
-   */
   formikContext?: FormikContextType<any>;
 }
 
-/** Dropdown component for single input selection */
 export const Dropdown = ({
   inputtype = 'dropdown-outline',
-  alias, readOnly, width, inputLabel,
-  placeholder, inputOptions,
-  style, newRow, isHinted, hintText,
-  hintUrl, errorText, className,
+  alias, 
+  readOnly, 
+  width, 
+  inputLabel,
+  placeholder = "Select an option...", 
+  inputOptions,
+  style, 
+  newRow, 
+  isHinted, 
+  hintText,
+  hintUrl, 
+  errorText, 
+  typography,
+  className,
   formikContext,
   onValueChange,
 }: xDropDownProps) => {
@@ -132,7 +59,7 @@ export const Dropdown = ({
   const RESET_ID = `__RESET__${alias}`;
 
   if (!activeContext) {
-      console.error(`Dropdown '${alias}' must be used within a Formik provider or receive a formikContext prop.`);
+      console.error(`[VectorSigma]: Dropdown '${alias}' must be used within a Formik provider or receive an explicit formikContext prop.`);
       return null;
   }
 
@@ -145,100 +72,229 @@ export const Dropdown = ({
   const hasError = Boolean(fieldTouched && fieldError);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [neuVars, setNeuVars] = useState<React.CSSProperties>({});
+  
   const inputId = `${alias}FormInput`;
   const errorId = `${alias}-error`;
 
   useEffect(() => {
     if (inputtype === 'dropdown-neumorphic' && triggerRef.current) {
       const parentBg = getNearestParentBackground(triggerRef.current.parentElement);
-      const shadowDark = adjustColor(parentBg, -30);
-      const shadowLight = adjustColor(parentBg, 30);
+      const computedBg = typography?.background || parentBg;
 
       setNeuVars({
-        '--neu-bg': parentBg,
-        '--neu-shadow-dark': shadowDark,
-        '--neu-shadow-light': shadowLight,
-        '--neu-text': 'var(--gray-12)',
+        '--neu-bg': computedBg,
+        '--neu-shadow-dark': adjustColor(computedBg, -30),
+        '--neu-shadow-light': adjustColor(computedBg, 30),
       } as React.CSSProperties);
     }
-  }, [inputtype]);
+  }, [inputtype, typography?.background]);
 
   const openLink = (inputUrl: string) => {
     window.open(inputUrl, '_blank', 'noopener,noreferrer');
   };
 
-  // --- STYLES ---
+  const typographyVars = {
+    '--vs-dd-bg': typography?.background || 'var(--color-surface)',
+    '--vs-dd-stroke': typography?.stroke || 'var(--gray-7)',
+    '--vs-dd-text': typography?.textColor || 'var(--gray-12)',
+    '--vs-dd-accent': typography?.accent || 'var(--accent-9)',
+  } as React.CSSProperties;
+
+  const baseTrigger: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    cursor: readOnly ? 'not-allowed' : 'pointer',
+    textAlign: 'left',
+    padding: '0 12px',
+    fontSize: 'var(--font-size-2)',
+    fontFamily: 'inherit',
+    color: 'var(--vs-dd-text)',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    boxSizing: 'border-box',
+    opacity: readOnly ? 0.7 : 1,
+    transition: 'all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)',
+  };
+
   const materialTrigger: React.CSSProperties = {
-    backgroundColor: 'var(--color-surface)',
-    border: 'none',
-    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+    ...baseTrigger,
+    backgroundColor: 'var(--vs-dd-bg)',
+    border: hasError ? '1px solid var(--red-9)' : `1px solid ${typography?.stroke ? 'var(--vs-dd-stroke)' : 'transparent'}`,
+    boxShadow: '0 2px 5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
     borderRadius: '4px',
-    height: '32px',
+    height: '36px',
     fontWeight: 500,
   };
-  const materialContent = {
+  const materialContent: React.CSSProperties = {
     borderRadius: '4px',
-    boxShadow: '0 5px 15px rgba(0,0,0,0.2)', 
+    boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15), 0 4px 12px -4px rgba(0,0,0,0.1)', 
+    backgroundColor: 'var(--vs-dd-bg)',
   };
 
   const outlineTrigger: React.CSSProperties = {
-    backgroundColor: 'transparent',
-    border: '2px solid var(--gray-7)',
-    borderRadius: '4px',
-    height: '32px',
-    fontWeight: 600,
+    ...baseTrigger,
+    backgroundColor: typography?.background || 'transparent',
+    border: hasError ? '1.5px solid var(--red-9)' : '1.5px solid var(--vs-dd-stroke)',
+    borderRadius: '6px',
+    height: '36px',
+    fontWeight: 500,
   };
-  const outlineContent = {
-    border: '2px solid var(--gray-7)',
-    borderRadius: '4px',
-    boxShadow: 'none',
+  const outlineContent: React.CSSProperties = {
+    border: '1px solid var(--vs-dd-stroke)',
+    borderRadius: '8px',
+    boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15), 0 4px 12px -4px rgba(0,0,0,0.1)',
+    backgroundColor: 'var(--vs-dd-bg)',
   };
 
   const neumorphicTrigger: React.CSSProperties = {
+    ...baseTrigger,
     backgroundColor: 'var(--neu-bg)',
-    color: 'var(--neu-text)',
+    color: hasError ? 'var(--red-9)' : 'var(--vs-dd-text)',
     border: 'none',
     borderRadius: '12px',
     height: '40px', 
-    fontWeight: 600,
-    padding: '0 12px',
+    fontWeight: 500,
     boxShadow: '6px 6px 12px var(--neu-shadow-dark), -6px -6px 12px var(--neu-shadow-light)',
-    transition: 'all 0.2s ease',
   };
-  const neumorphicContent = {
+  const neumorphicContent: React.CSSProperties = {
     backgroundColor: 'var(--neu-bg)',
     borderRadius: '12px',
     border: 'none',
-    boxShadow: '6px 6px 12px var(--neu-shadow-dark), -6px -6px 12px var(--neu-shadow-light)',
+    boxShadow: '8px 8px 16px var(--neu-shadow-dark), -8px -8px 16px var(--neu-shadow-light)',
   };
 
   const activeTriggerStyle = 
-    inputtype === 'dropdown' ? materialTrigger :
-    inputtype === 'dropdown-material' ? materialTrigger :
-    inputtype === 'dropdown-outline' ? outlineTrigger :
-    { ...neumorphicTrigger, ...neuVars };
+    inputtype.includes('material') ? materialTrigger :
+    inputtype.includes('neumorphic') ? { ...neumorphicTrigger, ...neuVars } :
+    outlineTrigger;
 
   const activeContentStyle = 
-    inputtype === 'dropdown' ? materialContent :
-    inputtype === 'dropdown-material' ? materialContent :
-    inputtype === 'dropdown-outline' ? outlineContent :
-    { ...neumorphicContent, ...neuVars };
+    inputtype.includes('material') ? materialContent :
+    inputtype.includes('neumorphic') ? { ...neumorphicContent, ...neuVars } :
+    outlineContent;
 
   return (
     <Column span={width} newLine={newRow}>
-      <Flex direction="column" gap="2" style={{ width: '100%' }}>
-        {inputtype === 'dropdown-neumorphic' && (
-          <style dangerouslySetInnerHTML={{__html: `
-            .neu-select-trigger[data-state='open'] {
-              box-shadow: inset 6px 6px 12px var(--neu-shadow-dark), 
-                          inset -6px -6px 12px var(--neu-shadow-light) !important;
+      <Flex 
+        direction="column" 
+        gap="2" 
+        style={{ width: '100%', fontFamily: "'Libre Franklin', sans-serif", ...typographyVars, ...style }} 
+        className={className}
+      >
+        <style>
+          {`
+            .vs-dropdown-trigger:not(:disabled):hover {
+              border-color: var(--vs-dd-accent) !important;
             }
-            .neu-select-item:hover {
-              background-color: rgba(0,0,0,0.05) !important;
+            .vs-dropdown-trigger-material:not(:disabled):hover {
+              box-shadow: 0 4px 8px rgba(0,0,0,0.12) !important;
+            }
+            .vs-dropdown-trigger-neumorphic:not(:disabled):hover {
+              box-shadow: 3px 3px 6px var(--neu-shadow-dark), -3px -3px 6px var(--neu-shadow-light) !important;
+            }
+            .vs-dropdown-trigger-neumorphic[data-state='open'] {
+              box-shadow: inset 6px 6px 12px var(--neu-shadow-dark), inset -6px -6px 12px var(--neu-shadow-light) !important;
+            }
+
+            /* Block Radix Specificity for the Trigger text & placeholder */
+            .vs-dropdown-trigger,
+            .vs-dropdown-trigger span {
+              color: var(--vs-dd-text) !important;
+            }
+            .vs-dropdown-trigger[data-placeholder],
+            .vs-dropdown-trigger[data-placeholder] span {
+              color: var(--vs-dd-text) !important;
+              opacity: 0.75 !important;
+            }
+            .vs-dropdown-trigger svg {
+              color: var(--vs-dd-text) !important;
+              opacity: 0.8;
+            }
+
+            @keyframes vs-dropdown-enter {
+              from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+              to { opacity: 1; transform: scale(1) translateY(0); }
+            }
+            @keyframes vs-dropdown-exit {
+              from { opacity: 1; transform: scale(1) translateY(0); }
+              to { opacity: 0; transform: scale(0.96) translateY(-4px); }
+            }
+
+            .vs-animated-dropdown[data-state="open"] {
+              animation: vs-dropdown-enter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+              transform-origin: top center;
+            }
+            .vs-animated-dropdown[data-state="closed"] {
+              animation: vs-dropdown-exit 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+              transform-origin: top center;
+            }
+
+            .vs-dropdown-item {
+              color: var(--vs-dd-text) !important;
+              border-radius: 6px !important;
+              padding: 8px 12px !important;
+              margin: 0 4px 4px 4px !important;
+              transition: all 0.15s ease;
+              outline: none !important;
+            }
+            
+            /* Dynamic Accent Highlight using color-mix */
+            .vs-dropdown-item:hover, 
+            .vs-dropdown-item[data-highlighted] {
+              background-color: color-mix(in srgb, var(--vs-dd-accent) 15%, transparent) !important;
+              color: var(--vs-dd-accent) !important;
               cursor: pointer;
             }
-          `}} />
+            
+            /* Dynamic Selection */
+            .vs-dropdown-item[data-state="checked"] {
+              background-color: color-mix(in srgb, var(--vs-dd-accent) 25%, transparent) !important;
+              color: var(--vs-dd-accent) !important;
+              font-weight: 600 !important;
+            }
+            
+            .vs-dropdown-item-neumorphic {
+              color: var(--vs-dd-text) !important;
+              border-radius: 6px !important;
+              padding: 8px 12px !important;
+              margin: 0 4px 4px 4px !important;
+              transition: all 0.15s ease;
+              outline: none !important;
+            }
+            .vs-dropdown-item-neumorphic:hover, 
+            .vs-dropdown-item-neumorphic[data-highlighted] {
+              background-color: transparent !important;
+              box-shadow: inset 2px 2px 5px var(--neu-shadow-dark), inset -2px -2px 5px var(--neu-shadow-light) !important;
+              color: var(--vs-dd-accent) !important;
+              cursor: pointer;
+            }
+            .vs-dropdown-item-neumorphic[data-state="checked"] {
+              box-shadow: inset 4px 4px 8px var(--neu-shadow-dark), inset -4px -4px 8px var(--neu-shadow-light) !important;
+              color: var(--vs-dd-accent) !important;
+              font-weight: 600 !important;
+            }
+          `}
+        </style>
+
+        {(inputLabel || isHinted) && (
+          <Flex align="center" gap="2" style={{ paddingLeft: '2px' }}>
+            {inputLabel && (
+              <Text id={`${alias}InputLabel`} as="label" size="2" weight="medium" style={{ color: typography?.textColor || 'var(--gray-11)' }} htmlFor={inputId}>
+                {inputLabel}
+              </Text>
+            )}
+            {isHinted && (
+              <Tooltip content={hintText || "No hint available"} align="start" sideOffset={5}>
+                <a href={hintUrl || "#"} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center' }}>
+                  <Icon name="questionmarkcircled" height="15" width="15" style={{ cursor: 'pointer', color: typography?.textColor || 'var(--gray-9)', transition: 'color 0.2s' }} />
+                </a> 
+              </Tooltip>
+            )}
+          </Flex>
         )}
+        
         <Select.Root
           name={alias}
           disabled={readOnly}
@@ -259,63 +315,69 @@ export const Dropdown = ({
             id={inputId}
             ref={triggerRef}
             variant="ghost" 
-            placeholder={placeholder || "Select an option"}
-            className={`${inputtype === 'dropdown-neumorphic' ? 'neu-select-trigger' : ''} ${className || ''}`}
-            style={{ ...activeTriggerStyle, ...style }}
+            placeholder={placeholder}
+            aria-describedby={inputLabel ? `${alias}InputLabel` : undefined}
+            className={`vs-dropdown-trigger ${
+              inputtype.includes('material') ? 'vs-dropdown-trigger-material' : 
+              inputtype.includes('neumorphic') ? 'vs-dropdown-trigger-neumorphic' : ''
+            }`}
+            style={activeTriggerStyle}
           />
 
-          <Select.Content position="popper" sideOffset={5} style={activeContentStyle}>
+          <Select.Content 
+            position="popper" 
+            sideOffset={6} 
+            className="vs-animated-dropdown"
+            style={{ 
+              ...activeContentStyle,
+              width: triggerRef.current?.offsetWidth || 'auto',
+              minWidth: 'var(--radix-select-trigger-width)',
+              fontFamily: 'inherit',
+              ...typographyVars
+            }}
+          >
             <Select.Item 
               value={RESET_ID} 
-              className={inputtype === 'dropdown-neumorphic' ? 'neu-select-item' : ''}
-              style={{ color: 'var(--gray-10)', fontStyle: 'italic' }}
+              className={inputtype.includes('neumorphic') ? 'vs-dropdown-item-neumorphic' : 'vs-dropdown-item'}
+              style={{ color: 'var(--gray-9) !important', fontStyle: 'italic', marginTop: '4px' }}
             >
-               {placeholder || "Select an option"}
+               {placeholder}
             </Select.Item>
             
-            <Separator size="4" style={{ margin: '4px 0', opacity: 0.5 }} />
+            <Separator size="4" style={{ margin: '4px 0', opacity: 0.5, backgroundColor: 'var(--vs-dd-stroke)' }} />
 
             {inputOptions.map((inputoption, idx) => (
               <React.Fragment key={`${alias}-opt-${inputoption.optionid || idx}`}>
-              {inputoption.optionurl ?            
-              <Select.Item 
-                id={String(inputoption.optionid) || `${alias}-item-${idx}`}
-                value={String(inputoption.optionvalue) || `__empty_${idx}`}
-                className={inputtype === 'dropdown-neumorphic' ? 'neu-select-item' : ''}>
-                <a onClick={(e) => { e.stopPropagation(); openLink(inputoption.optionurl || "#"); }} style={{textDecoration: 'none', color: 'inherit'}}>
-                  {inputoption.text}
-                </a>
-              </Select.Item>
-              : 
-              <Select.Item 
-                id={String(inputoption.optionid) || `${alias}-item-${idx}`}
-                value={String(inputoption.optionvalue) || `__empty_${idx}`}
-                className={inputtype === 'dropdown-neumorphic' ? 'neu-select-item' : ''}
-              >
-                {inputoption.text}
-              </Select.Item>
-              }
+                {inputoption.optionurl ?             
+                  <Select.Item 
+                    value={String(inputoption.optionvalue) || `__empty_${idx}`}
+                    className={inputtype.includes('neumorphic') ? 'vs-dropdown-item-neumorphic' : 'vs-dropdown-item'}
+                  >
+                    <a 
+                      onClick={(e) => { e.stopPropagation(); openLink(inputoption.optionurl || "#"); }} 
+                      style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%' }}
+                    >
+                      {inputoption.text}
+                    </a>
+                  </Select.Item>
+                : 
+                  <Select.Item 
+                    value={String(inputoption.optionvalue) || `__empty_${idx}`}
+                    className={inputtype.includes('neumorphic') ? 'vs-dropdown-item-neumorphic' : 'vs-dropdown-item'}
+                  >
+                    {inputoption.text}
+                  </Select.Item>
+                }
               </React.Fragment>
             ))}
           </Select.Content>
         </Select.Root>
 
-         <div>
-              <Text id={`${alias}InputLabel`} as="label" size="2" weight="bold" htmlFor={inputId}>{inputLabel}</Text>
-              &nbsp;   
-              {isHinted ? (
-                <Tooltip content={hintText || "No hint available"} align="start" sideOffset={5} className="core-input-tooltip">
-                    <a href={hintUrl || ""} target="_blank" rel="noopener noreferrer">
-                      <Icon name="questionmarkcircled" height="16" width="16" style={{ cursor: 'pointer', color: 'gray' }} />
-                    </a> 
-                </Tooltip>
-              ) : null} 
-              {hasError ? (
-                <p id={errorId} className='core-input-label-error'>
-                    {errorText || (typeof fieldError === 'string' ? fieldError : "Required field")}
-                </p>
-              ) : null } 
-        </div>
+        {hasError && (
+          <Text id={errorId} size="1" style={{ color: 'var(--red-9)', fontWeight: 500, paddingLeft: '2px' }}>
+            {errorText || (typeof fieldError === 'string' ? fieldError : "Required field")}
+          </Text>
+        )}
       </Flex>
     </Column>
   );

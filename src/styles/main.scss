@@ -1,6 +1,7 @@
 @layer radix, custom;
 
 @import "@radix-ui/themes/styles.css" layer(radix);
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap');
 
 @layer custom {  
 
@@ -59,6 +60,19 @@
     &:focus-within {
         box-shadow: inset 5px 5px 10px #b8b9be, inset -5px -5px 10px #ffffff !important;
     }
+    }
+
+    .rt-TextFieldInput {
+    color: var(--vs-dp-text) !important;
+    }
+    .react-datepicker__current-month, 
+    .react-datepicker__day-name, 
+    .react-datepicker__day {
+    color: var(--vs-dp-text) !important;
+    }
+
+    .rt-SelectTrigger .rt-SelectValue {
+    color: var(--vs-dd-text) !important;
     }
 
 

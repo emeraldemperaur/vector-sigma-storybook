@@ -7,6 +7,6 @@ export default create({
   brandUrl: 'https://github.com/emeraldemperaur/vector-sigma',
   brandImage: '/me_logo.png', 
   brandTarget: '_blank',
-  colorPrimary: '#800020',
-  colorSecondary: '#800020',
+  colorPrimary: '#000000',
+  colorSecondary: '#000000',
 });

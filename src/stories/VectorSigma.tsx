@@ -1,0 +1,618 @@
+import React, { useEffect } from 'react';
+import { XFormSchema, type XFormType, type XFormQuery, SectionSchema } from '../utils/voltron';
+import { normalizeXForm } from '../utils/minerva'; 
+import { Teletraan1, type Teletraan1Props } from './Teletraan1';
+import { z } from "zod";
+import { Theme, type ThemeProps } from '@radix-ui/themes';
+import { Formik, Form, useFormikContext, type FormikHelpers } from 'formik';
+import * as Yup from 'yup';
+import { VectorSigmaErrorBoundary } from './VectorSigmaErrorBoundary';
+import '../styles/main.scss';
+
+export interface VectorSigmaRenderProps<T extends Record<string, any> = Record<string, any>> extends Omit<Teletraan1Props, 'xFormModel'> {
+    /**
+     * * Optional callback fired when the form is submitted and passes validation.
+     * Receives normalized xForm form values, developer access to Formik action helper methods, and the VectorSigma class instance.
+     * * @example
+     * onSubmit={async (values, actions, instance) => {
+        // Send data to API
+        await axios.post('/api/upload', instance.getxForm());
+        await axios.post('/api/submit', values);
+        // Track completion time using 'instance'
+        console.log(`Form completed in ${(instance.timeSubmitted! - instance.timeCreated) / 1000}s`);
+        // Clear form after success
+        actions.resetForm(); 
+    }}
+     */
+    onSubmit?: (
+        values: T, 
+        actions: FormikHelpers<T>, 
+        instance: VectorSigma<T>
+    ) => void | Promise<any>;
+    /**
+     * * Optional Radix UI Theme configuration. 
+     * Enables developer theming extensibility to align xForm appearance with an extant application design system.
+     * * https://www.radix-ui.com/themes/docs/components/theme
+     * @example
+     * theme={{ appearance: 'dark', accentColor: 'ruby', radius: 'large' }}
+     */
+    theme?: Omit<ThemeProps, 'children'>;
+    /**
+     * * Optional toggle to disable the default xForm bottom submit button.
+     * Allows developers to implement custom Submit, Save or Validate buttons outside xForm component.
+     * @example
+     * buttonOverride={true}
+     */
+    buttonOverride?: boolean;
+    /**
+     * Optional callback fired if the underlying VectorSigma rendering engine crashes.
+     */
+    onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+}
+
+const FormikStateObserver = <T extends Record<string, any>>({ instance }: { instance: VectorSigma<T> }) => {
+    const formikContext = useFormikContext<T>();
+    
+    useEffect(() => {
+        instance.values = formikContext.values as Partial<T>;
+        instance.errors = formikContext.errors;
+        
+        if (!instance.actions) {
+            instance.actions = {
+                submitForm: formikContext.submitForm,
+                resetForm: formikContext.resetForm,
+                setValues: formikContext.setValues,
+                setFieldValue: formikContext.setFieldValue,
+                setFieldError: formikContext.setFieldError,
+                setFieldTouched: formikContext.setFieldTouched,
+                validateForm: formikContext.validateForm,
+                setSubmitting: formikContext.setSubmitting,
+            };
+        }
+
+        if (formikContext.dirty && instance.statusCode === 0) {
+            instance.statusCode = 1;
+            instance.timeInProgress = Date.now();
+        }
+    }, [formikContext, instance]);
+
+    return null; 
+};
+
+export interface VectorSigmaActions<T> {
+    submitForm: () => Promise<void | undefined>;
+    resetForm: (nextState?: Partial<import('formik').FormikState<T>>) => void;
+    setValues: (values: React.SetStateAction<T>, shouldValidate?: boolean) => Promise<void | import('formik').FormikErrors<T>>;
+    setFieldValue: (field: string, value: any, shouldValidate?: boolean) => Promise<void | import('formik').FormikErrors<T>>;
+    setFieldError: (field: string, message: string | undefined) => void;
+    setFieldTouched: (field: string, isTouched?: boolean, shouldValidate?: boolean) => Promise<void | import('formik').FormikErrors<T>>;
+    validateForm: (values?: any) => Promise<import('formik').FormikErrors<T>>;
+    setSubmitting: (isSubmitting: boolean) => void;
+}
+
+export class VectorSigma<T extends Record<string, any> = Record<string, any>> {
+    public isValid: boolean = false;
+    public formObject: XFormType;
+    public values: Partial<T> = {};
+    public errors: Record<string, any> = {};
+    public actions: VectorSigmaActions<T> | null = null;
+    public statusCode: 0 | 1 | 2 = 0; // 0 = Created/Empty | 1 = In Progress | 2 = Submitted
+    public timeCreated: number;
+    public timeInProgress: number | null = null;
+    public timeSubmitted: number | null = null;
+    public isSubmitting: boolean = false;
+
+    /**
+     * Initializes VectorSigma instance.
+     * @param initializer JSON string literal or a JavaScript {} matching XFormType.
+     * When undefined, initializes base xForm object scaffold for use with VectorSigma builder methods.
+     */
+    constructor(initializer?: string | XFormType | unknown) {
+        this.timeCreated = Date.now();
+        this.formObject = {
+            uuid: crypto.randomUUID ? crypto.randomUUID() : `form-${Date.now()}`,
+            name: 'Untitled Form',
+            model: []
+        };
+
+        if (initializer) {
+            this.validateAndSet(initializer);
+        }
+    }
+
+    /**
+     * Validates JSON juxtaposed with the XFormSchema.
+     * Raises DX (developer-friendly) errors if the JSON malformed or violates XFormSchema.
+     */
+    private validateAndSet(input: unknown) {
+        let dataToValidate = input;
+
+        if (typeof input === 'string') {
+            try {
+                dataToValidate = JSON.parse(input);
+            } catch (error) {
+                throw new Error(`VectorSigma Validation Error: Invalid xForm JSON string provided.\nDetails: ${(error as Error).message}`);
+            }
+        }
+
+        const result = XFormSchema.safeParse(dataToValidate);
+        this.isValid = result.success;
+
+        if (result.success) {
+            this.formObject = result.data;
+            console.log(`VectorSigma: JSON Validation successful for xForm "${this.formObject.name}".`);
+        } else {
+            const errorMessages = result.error.issues.map(
+                issue => `  - Path: [${issue.path.join('.') || 'root'}] -> ${issue.message}`
+            ).join('\n');
+
+            throw new Error(`VectorSigma Validation Error: Invalid xForm Object Schema.\n${errorMessages}`);
+        }
+    }
+
+    /**
+     * Extrapolates Formik InitialValues and Yup Schema based on inputType value data type.
+     */
+    private buildFormikConfig(sanitizedData: XFormType) {
+        const initialValues: Record<string, any> = {};
+        const shape: Record<string, any> = {};
+
+        const arrayTypes = [
+            "checkbox", "checkboxes", "checkboxinput", "chechbox-input", "input-checkbox", "inputcheckbox", "checkboxgroup", "checkboxgroup-input",
+            "filemultiple", "filemultipleinput", "filemultiple-input", "input-filemultiple", "inputfilemultiple", "file-upload",
+            "selectmultiple", "selectmultipleinput", "selectmultiple-input", "input-selectmultiple", "inputselectmultiple", "multiselect",
+            "countrymultiselect", "countrymultiselectinput", "countrymultiselect-input", "input-countrymultiselect", "inputcountrymultiselect",
+            "range", "rangeslider", "rangeinput", "rangesliderinput", "rangeslider-input", "range-input", "input-rangeslider", "inputrangeslider"
+        ];
+
+        const booleanTypes = [
+            "toggle", "switch", "toggleinput", "toggle-input", "input-toggle", "inputtoggle",
+            "conditional", "conditionaltoggle", "conditional-toggle", "conditionalcheckbox", "conditional-checkbox", "conditionalselect", "conditional-select"
+        ];
+
+        const numberTypes = [
+            "currency", "currencyinput", "currency-input", "input-currency", "inputcurrency",
+            "stock", "stockinput", "stock-input", "input-stock", "inputstock",
+            "slider", "sliderinput", "slider-input", "input-slider", "inputslider",
+            "number-input", "number"
+        ];
+
+        const traverseQueries = (queries: XFormQuery[]) => {
+            queries.forEach(q => {
+                const normalizedType = (q.inputType || 'text').toLowerCase();
+
+                const isArray = arrayTypes.includes(normalizedType);
+                const isBoolean = booleanTypes.includes(normalizedType);
+                const isNumber = numberTypes.includes(normalizedType);
+
+                if (q.defaultValue !== undefined && q.defaultValue !== null) {
+                    if (isNumber && typeof q.defaultValue === 'string' && isNaN(Number(q.defaultValue))) {
+                        initialValues[q.inputAlias] = ""; 
+                    } else {
+                        initialValues[q.inputAlias] = q.defaultValue;
+                    }
+                } else if (isArray) {
+                    initialValues[q.inputAlias] = []; 
+                } else if (isBoolean) {
+                    initialValues[q.inputAlias] = false; 
+                } else if (isNumber) {
+                    initialValues[q.inputAlias] = 0; 
+                } else {
+                    initialValues[q.inputAlias] = ""; 
+                }
+
+                let validator: any;
+                if (isArray) {
+                    validator = Yup.array();
+                } else if (isBoolean) {
+                    validator = Yup.boolean();
+                } else if (isNumber) {
+                    validator = Yup.number();
+                } else {
+                    validator = Yup.string();
+                }
+
+                if (q.isRequired) {
+                    const errorMsg = q.errorText || `${q.inputLabel || 'This field'} is required`;
+                    if (isArray) {
+                        validator = validator.min(1, errorMsg);
+                    } else if (isBoolean) {
+                        validator = validator.oneOf([true], errorMsg);
+                    } else {
+                        validator = validator.required(errorMsg);
+                    }
+                } else {
+                    validator = validator.nullable().notRequired();
+                }
+
+                shape[q.inputAlias] = validator;
+
+                if (q.toggledInput) {
+                    traverseQueries([q.toggledInput]);
+                }
+            });
+        };
+
+        sanitizedData.model.forEach(section => traverseQueries(section.queries));
+
+        this.values = initialValues as Partial<T>;
+
+        return {
+            initialValues,
+            validationSchema: Yup.object().shape(shape)
+        };
+    }
+
+    /**
+     * Traverses xForm schema object and injects Formik values into their respective input queryResponse attributes by `inputAlias`.
+     * For select-based inputs, it hydrates the queryResponse with the full matching inputOption object(s).
+     */
+    private hydrateQueryResponses(submittedValues: T) {
+
+        const objectHydrationTypes = [
+            "dropdown", "dropdowninput", "dropdown-input", "input-dropdown", "inputdropdown",
+            "select", "selectinput", "select-input", "input-select", "inputselect", "optionselect",
+            "selectmultiple", "selectmultipleinput", "selectmultiple-input", "input-selectmultiple", "inputselectmultiple", "multiselect",
+            "countrydropdown", "countrydropdowninput", "countrydropdown-input", "input-countrydropdown", "inputcountrydropdown", "countryselect", "countryselect-input", "countryselectinput", "input-countryselect",
+            "countrymultiselect", "countrymultiselectinput", "countrymultiselect-input", "input-countrymultiselect", "inputcountrymultiselect",
+            "radio", "radioinput", "radio-input", "input-radio", "inputradio", "radiogroup", "radiogroup-input"
+        ];
+
+        const traverseAndHydrate = (queries: XFormQuery[]) => {
+            queries.forEach(query => {
+                const formikValue = submittedValues[query.inputAlias];
+                const normalizedType = (query.inputType || 'text').toLowerCase();
+
+                if (formikValue !== undefined && formikValue !== null) {
+                    
+                    if (objectHydrationTypes.includes(normalizedType) && query.inputOptions) {
+                        
+                        if (Array.isArray(formikValue)) {
+                            query.queryResponse = query.inputOptions.filter(opt => 
+                                formikValue.some(val => String(val) === String(opt.optionvalue))
+                            );
+                        } else {
+                            const matchedOption = query.inputOptions.find(opt => String(opt.optionvalue) === String(formikValue));
+                            query.queryResponse = matchedOption !== undefined ? matchedOption : formikValue;
+                        }
+                        
+                    } else {
+                        query.queryResponse = formikValue;
+                    }
+                } else {
+                    query.queryResponse = null;
+                }
+                if (query.toggledInput) {
+                    traverseAndHydrate([query.toggledInput]);
+                }
+            });
+        };
+
+        this.formObject.model.forEach(section => {
+            traverseAndHydrate(section.queries);
+        });
+    }
+
+    /**
+     * VΣ builder method to set the xForm model's unique universal identifier (uuid) attribute.
+     * @param uuid unique universal identifier for xForm object.
+     * @example 
+     * const xForm97 = new VectorSigma()
+     * .setUUID("the-uuid-is-sahelanthropus")
+     */
+    public setUUID(uuid: string): this {
+        this.formObject.uuid = uuid;
+        return this;
+    }
+    /**
+     * VΣ builder method to set the xForm model's name attribute.
+     * @param name name for xForm object.
+     * @example
+     * const xForm97 = new VectorSigma()
+     * .setName("Wakanda Citizenship Form")
+     */
+    public setName(name: string): this {
+        this.formObject.name = name;
+        return this;
+    }
+    /**
+     * VΣ builder method to set the xForm model's branding attribute.
+     * @param color brand color hex string for xForm object.
+     * @param logo logo image url for xForm object.
+     * @param logoPosition logo position for xForm object.
+     * @example
+     * const xForm97 = new VectorSigma()
+     * .setBrand("#000000", brandLogoUrlRef, 'right')
+     */
+    public setBrand(color: string, logo?: string, logoPosition?: 'left' | 'center' | 'right'): this {
+        this.formObject.brandColor = color;
+        if (logo) this.formObject.logo = logo;
+        if (logoPosition) this.formObject.logoPosition = logoPosition;
+        return this;
+    }
+    /**
+     * VΣ builder method to add a Section object to the xForm model.
+     * @param section valid schema section object for xForm model.
+     * @example 
+     * const xForm97 = new VectorSigma()
+     * .setBrand("#000000", brandLogoUrlRef, 'right')
+     * .addSection({
+            sectionId: "bio-data",
+            title: "Personal Information",
+            icon: "user",
+            queries: [
+                {
+                    queryId: 303,
+                    inputType: "text-input",
+                    inputAlias: "wakandanName",
+                    inputLabel: "Wakandan Name",
+                    inputWidth: 7,
+                    newRow: false,
+                    isRequired: true,
+                    errorText: "Wakandan name is required for citizenship applications"
+                }
+            ]
+        })
+     */
+    public addSection(section: z.infer<typeof SectionSchema>): this {
+        this.formObject.model.push(section);
+        return this;
+    }
+    /**
+     * VΣ builder method to create a Section object in the xForm model.
+     * @param sectionId sectionId string for the xForm model section.
+     * @param title title string for the xForm model section.
+     * @param subtitle optional subtitle string for the xForm model section.
+     * @param icon xForm icon name for the xForm model section.
+     * @example 
+     * const xForm97 = new VectorSigma()
+     * .setBrand("#000000", brandLogoUrlRef, 'right')
+     * .createSection('bio-data', 'Personal Information', 'Help us learn more to deliver a bespoke experience', 'user')
+     */
+    public createSection(sectionId: string, title: string, subtitle?: string, icon?: string): this {
+        this.formObject.model.push({ sectionId, title, subtitle, icon, queries: [] });
+        return this;
+    }
+    /**
+     * VΣ builder method to add a Query object to the xForm model section by sectionId.
+     * @param sectionId sectionId string for the target xForm model section.
+     * @param query valid schema query object for the xForm model section.
+     * @example 
+     * const xForm97 = new VectorSigma()
+     * .setBrand("#000000", brandLogoUrlRef, 'right')
+     * .createSection('bio-data', 'Personal Information', 'user')
+     * .addQueryToSection('bio-data', {
+            queryId: 100,
+            inputType: 'password-input',
+            inputAlias: 'wakanadaPassport',
+            inputLabel: 'Wakandan Passport Number',
+            inputWidth: 6,
+            newRow: false,
+            isRequired: true,
+            errorText: "A valid passport number is required for citizenship application"
+        })
+     */
+    public addQueryToSection(sectionId: string, query: XFormQuery): this {
+        const section = this.formObject.model.find(s => s.sectionId === sectionId);
+        if (!section) {
+            throw new Error(`VectorSigma Builder Error: Section with ID "${sectionId}" not found.`);
+        }
+        section.queries.push(query);
+        return this;
+    }
+
+    /**
+     * VΣ `transform()` method for use with initialized JSON/Object
+     * * Apt for integration with JSON data fetched from a backend API or localhost .json file.
+     * * Transforms the initialized xForm JSON/JS object, normalizing attribute fields and returning a `<Teletraan1/>` component.
+     * @param options VectorSigmaRenderProps -- `VectorSigma` and `Teletraan1` props for VΣ render matrix.
+     * @example .transform({ 
+         displayMode: 'codex', 
+         readOnlyMode: false,
+         brandColor: '#800020',
+         onSubmit: async (values, actions, instance) => { // <-- onSubmit callback function passed into VectorSigma props
+            // Use Case: Send extant xForm object to API
+            await axios.post('/api/submit', instance.getxForm());
+            // Use Case: Submit and clear form after success
+            actions.submitForm();
+            actions.resetForm(); 
+            },
+         onFinish: () => handleFormFinish() // <-- onFinish callback function passed into Teletraan1 (Codex only) props
+      })})
+     */
+    public transform(options?: VectorSigmaRenderProps<T>): React.ReactElement {
+        this.validateAndSet(this.formObject); 
+        const sanitizedData = normalizeXForm(this.formObject);
+
+        const { initialValues, validationSchema } = this.buildFormikConfig(sanitizedData);
+        const isCodexMode = options?.displayMode === 'codex';
+        const themeConfig: ThemeProps = {
+            appearance: 'inherit', 
+            accentColor: 'blue',
+            radius: 'medium',
+            panelBackground: 'solid',
+            ...options?.theme
+        };
+        
+        return (
+            <VectorSigmaErrorBoundary onError={options?.onError} brandColor={sanitizedData.brandColor}>
+                <Theme {...themeConfig}>
+                    <Formik<T>
+                        initialValues={initialValues as unknown as T}
+                        validationSchema={validationSchema}
+                        onSubmit={async (values, actions) => {
+                            try {
+                                this.statusCode = 2;
+                                this.timeSubmitted = Date.now();
+                                this.hydrateQueryResponses(values);
+                                console.log(`VectorSigma xForm Submitted: [${sanitizedData.name}]`, values);
+                                
+                                if (options?.onSubmit) {
+                                    await options.onSubmit(values, actions, this);
+                                }
+                                
+                                if (options?.onFinish) {
+                                    options.onFinish(values as any, actions as any, this as any);
+                                }
+                            } catch (error) {
+                                console.error(`VectorSigma xForm Submission Error:`, error);
+                            } finally {
+                                actions.setSubmitting(false);
+                            }
+                        }}
+                    >
+                        {({ isSubmitting }) => (
+                            <Form 
+                                className="vs-form-root" 
+                                style={{ 
+                                    fontFamily: "'Libre Franklin', sans-serif", 
+                                    display: 'flex', 
+                                    flexDirection: 'column',
+                                    minHeight: '100%',
+                                    width: '100%'
+                                }}
+                            >
+                                {isSubmitting ? this.isSubmitting = isSubmitting : null}
+                                <FormikStateObserver<T> instance={this} />
+
+                                <div className="vs-form-content" style={{ flexGrow: 1, paddingBottom: '24px' }}>
+                                    {sanitizedData.logo && (
+                                        <div style={{ display: 'flex', width: '100%', marginBottom: '24px', 
+                                            justifyContent: 
+                                                sanitizedData.logoPosition === 'center' ? 'center' :
+                                                sanitizedData.logoPosition === 'right' ? 'flex-end' : 
+                                                'flex-start'
+                                        }}>
+                                            <img 
+                                                src={sanitizedData.logo} 
+                                                alt={`${sanitizedData.name || 'Form'} Logo`} 
+                                                style={{ maxHeight: '64px', maxWidth: '100%', objectFit: 'contain' }} 
+                                            />
+                                        </div>
+                                    )}
+
+                                    <Teletraan1 
+                                        brandColor={sanitizedData.brandColor} 
+                                        xFormModel={sanitizedData} 
+                                        {...options} 
+                                    />
+                                </div>
+
+                                {!isCodexMode && !options?.readOnlyMode && !options?.buttonOverride && (
+                                    <div 
+                                        className="form-submit-footer"
+                                        style={{ 
+                                            width: '100%', 
+                                            paddingTop: '20px', 
+                                            paddingBottom: '20px', 
+                                            borderTop: '1px solid var(--gray-5)',
+                                            backgroundColor: themeConfig.appearance === 'dark' ? '#111111' : '#ffffff',
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            marginTop: 'auto', 
+                                            zIndex: 10
+                                        }}
+                                    >
+                                        <style>
+                                            {`
+                                                .vs-submit-btn {
+                                                    font-family: inherit;
+                                                    display: inline-flex;
+                                                    align-items: center;
+                                                    justify-content: center;
+                                                    font-weight: 600;
+                                                    border-radius: 8px;
+                                                    cursor: pointer;
+                                                    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                                                    height: 40px;
+                                                    padding: 0 24px;
+                                                    border: none;
+                                                    background-color: ${sanitizedData.brandColor || '#000000'};
+                                                    color: #ffffff;
+                                                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+                                                    font-size: 0.875rem;
+                                                }
+                                                .vs-submit-btn:hover:not(:disabled) {
+                                                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+                                                    transform: translateY(-1px);
+                                                }
+                                                .vs-submit-btn:active:not(:disabled) {
+                                                    transform: translateY(0) scale(0.98);
+                                                }
+                                                .vs-submit-btn:disabled {
+                                                    opacity: 0.6;
+                                                    cursor: not-allowed;
+                                                    transform: none;
+                                                    box-shadow: none;
+                                                }
+                                                .vs-submit-spinner {
+                                                    width: 16px;
+                                                    height: 16px;
+                                                    border: 2px solid rgba(255, 255, 255, 0.3);
+                                                    border-radius: 50%;
+                                                    border-top-color: #ffffff;
+                                                    animation: vsSubmitSpin 0.6s linear infinite;
+                                                    margin-right: 8px;
+                                                }
+                                                @keyframes vsSubmitSpin {
+                                                    to { transform: rotate(360deg); }
+                                                }
+                                            `}
+                                        </style>
+                                        <button 
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            className="vs-submit-btn"
+                                        >
+                                            {isSubmitting && <div className="vs-submit-spinner" aria-hidden="true" />}
+                                            <span>{isSubmitting ? 'Submitting...' : 'Submit'}</span>
+                                        </button>
+                                    </div>
+                                )}
+                            </Form>
+                        )}
+                    </Formik>
+                </Theme>
+            </VectorSigmaErrorBoundary>
+        );
+    }
+
+    /**
+     * VΣ `render()` method for use with VectorSigma object builder
+     * * Apt for dynamically creating forms via code.
+     * * `render()` is the final method in the Vector Sigma builder pattern chain.
+     * @param options VectorSigmaRenderProps -- `VectorSigma` and `Teletraan1` props for VΣ render matrix.
+     * @example .render({ 
+         displayMode: 'dual', 
+         brandColor: '#800020',
+         readOnlyMode: false,
+         onSubmit: async (values, actions, instance) => { // <-- onSubmit callback function passed into VectorSigma props
+            // Use Case: Send hydrated xForm object to API
+            await axios.post('/api/submit', instance.getxForm());
+            // Use Case: Submit and clear form after success
+            actions.submitForm();
+            actions.resetForm(); 
+            },
+         onFinish: () => handleFormFinish() // <-- onFinish callback function passed into Teletraan1 (Codex) props
+      })})
+     */
+    public render(options?: VectorSigmaRenderProps<T>): React.ReactElement {
+        return this.transform(options);
+    }
+
+
+    /**
+     * VΣ `toJSON()` utility method for retrieving the extant VectorSigma xForm JSON string
+     * @example toJSON()
+     */
+    public toJSON(): string {
+        return JSON.stringify(this.formObject, null, 2);
+    }
+    /**
+     * VΣ `getxForm()` utility method for retrieving the extant VectorSigma xForm {}
+     * @example getxForm()
+     */
+    public getxForm(): XFormType {
+        return this.formObject;
+    }
+}

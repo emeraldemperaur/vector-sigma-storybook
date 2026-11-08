@@ -1,5 +1,7 @@
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Box, Flex, Text, Badge, Card, ScrollArea } from '@radix-ui/themes';
+import { Box, Flex, Text, Badge, Card, ScrollArea, Table, Heading, Callout } from '@radix-ui/themes';
+import { InfoCircledIcon } from '@radix-ui/react-icons';
 import type { XFormType, InputOption } from '../utils/voltron';
 
 /**
@@ -14,12 +16,6 @@ const meta: Meta = {
   title: 'χForm Components/XForm Schema Reference',
   parameters: {
     layout: 'padded',
-    docs: {
-      source: {
-        code: `import { XFormSchema, type XFormType, type InputOption } from '@emeraldemperaur/vector-sigma';\n\n// Use XFormSchema for runtime validation\nconst parsed = XFormSchema.parse(rawJson);\n\n// Use XFormType for TypeScript definitions\nconst myForm: XFormType = { ... };`,
-        language: 'tsx',
-      },
-    },
   },
   tags: ['autodocs'],
 };
@@ -526,23 +522,125 @@ const inputOptionExamples: InputOption[] = [
     score: 100,
     note: "Includes 24/7 dedicated support and unlimited API usage.",
     optionurl: "https://vectorsigma.io/pricing"
-  },
-  {
-    optionid: "opt-tier-2",
-    text: "Professional Plan",
-    optionvalue: "professional_tier",
-    score: 50,
-    note: "Best for growing teams up to 50 members."
-  },
-  {
-    optionid: "opt-tier-3",
-    text: "Starter Plan",
-    optionvalue: "starter_tier",
-    tag: "Beta",
-    score: 10,
-    note: "Basic features for small projects and individuals."
   }
 ];
+
+const dictionaryData = {
+  xform: [
+    { name: 'uuid', type: 'string', req: true, desc: 'Universal unique identifier for the form instance.' },
+    { name: 'name', type: 'string', req: true, desc: 'Administrative and display name of the form (e.g., "Enterprise Workspace Onboarding").' },
+    { name: 'model', type: 'Section[]', req: true, desc: 'The ordered collection of sections and interactive queries that constitute the form.' },
+    { name: 'logo', type: 'string', req: false, desc: 'URL, asset path, or base64 data URI of the brand logo image rendered in the form header.' },
+    { name: 'brandColor', type: 'string', req: false, desc: 'Primary brand color (hex, rgb, or CSS token) used for focus borders, indicators, and buttons.' },
+    { name: 'logoPosition', type: '"left" | "center" | "right"', req: false, desc: 'Horizontal alignment of the logo image within the header banner.' },
+  ],
+  section: [
+    { name: 'sectionId', type: 'string | number', req: true, desc: 'Unique slug or ID for this section, utilized by Codex steppers and Accordions.' },
+    { name: 'title', type: 'string', req: true, desc: 'Section heading rendered above the section queries.' },
+    { name: 'queries', type: 'XFormQuery[]', req: true, desc: 'Ordered list of query input nodes belonging to this section.' },
+    { name: 'subtitle', type: 'string', req: false, desc: 'Secondary explanatory copy or instructions for completing this section.' },
+    { name: 'icon', type: 'string', req: false, desc: 'Name of the icon rendered next to the section title (e.g., "user", "shield", "layers").' },
+  ],
+  query: [
+    { name: 'queryId', type: 'string | number', req: true, desc: 'Unique integer or UUID identifying this question node within the form section.' },
+    { name: 'inputType', type: 'KnownInputType', req: true, desc: 'Component primitive to render (e.g., "text-input", "dropdown-material", "conditionaltoggle").' },
+    { name: 'inputAlias', type: 'string', req: true, desc: 'Formik state key, input name attribute, and JSON submission payload key (Must be alphanumeric/dash/underscore).' },
+    { name: 'inputLabel', type: 'string', req: true, desc: 'Primary label rendered directly above the input element.' },
+    { name: 'inputWidth', type: 'number', req: true, desc: 'Responsive grid span across a 12-column grid (1-12). Stacks to 12 automatically on mobile viewports.' },
+    { name: 'inputPlaceholder', type: 'string', req: false, desc: 'Muted placeholder text rendered when the input has no value.' },
+    { name: 'newRow', type: 'boolean', req: false, desc: 'Forces the grid column to break onto a new row (starts at column 1 of the 12-column grid).' },
+    { name: 'inputHeight', type: 'string | number', req: false, desc: 'Vertical pixel height override for multi-line textareas, code editors, or ImageOutput.' },
+    { name: 'isRequired', type: 'boolean', req: false, desc: 'Whether this field requires a non-empty, non-null value before form submission can proceed.' },
+    { name: 'isHinted', type: 'boolean', req: false, desc: 'Renders an interactive help/tooltip icon adjacent to the input label.' },
+    { name: 'hintText', type: 'string', req: false, desc: 'Descriptive guidance copy revealed when the user hovers or taps the hint tooltip.' },
+    { name: 'hintUrl', type: 'string', req: false, desc: 'External documentation or guide URL opened when clicking the hint tooltip icon.' },
+    { name: 'errorText', type: 'string', req: false, desc: 'Explicit validation error message overriding standard automated Yup/Zod schema messages.' },
+    { name: 'defaultValue', type: 'any', req: false, desc: 'Initial value hydrated into Formik state upon mount. Must match the input type.' },
+    { name: 'queryResponse', type: 'any', req: false, desc: 'Stores the final submitted value hydrated by VectorSigma. For selects, holds the resolved InputOption.' },
+    { name: 'inputOptions', type: 'InputOption[]', req: false, desc: 'Array of selectable choices for selection primitives (dropdowns, radios, multiselects).' },
+    { name: 'triggerValue', type: 'any', req: false, desc: 'The matching field value that dynamically reveals the nested toggledInput sub-query.' },
+    { name: 'toggledInput', type: 'XFormQuery', req: false, desc: 'Conditional sub-query revealed recursively when this input\'s value matches triggerValue.' },
+    { name: 'minValue / maxValue', type: 'number', req: false, desc: 'Numerical boundaries for slider, range, or numeric controls.' },
+    { name: 'stepValue', type: 'number', req: false, desc: 'Granularity step interval for numeric and slider controls (e.g., 0.5, 1, 10).' },
+    { name: 'enableSearch', type: 'boolean', req: false, desc: 'Incorporates an interactive text search filter inside optionselect or multiselect popovers.' },
+    { name: 'readOnly', type: 'boolean', req: false, desc: 'Disables user interaction and applies muted read-only styling.' },
+  ],
+  option: [
+    { name: 'optionid', type: 'string | number', req: true, desc: 'Unique structural identifier used strictly for React DOM reconciliation. Does not represent state.' },
+    { name: 'text', type: 'string', req: true, desc: 'The human-readable label displayed in the UI (dropdown item label, radio label, tile heading).' },
+    { name: 'optionvalue', type: 'string | number | boolean', req: true, desc: 'The actual primitive payload committed to Formik values when this option is selected.' },
+    { name: 'tag', type: 'string', req: false, desc: 'Optional badge label or category pill displayed alongside the option (e.g., "Recommended", "Beta").' },
+    { name: 'score', type: 'number', req: false, desc: 'Optional numerical metric or weight for algorithmic ranking, recommendation scoring, or risk assessment.' },
+    { name: 'note', type: 'string', req: false, desc: 'Secondary subtitle, hint, or description copy providing contextual guidance for this choice.' },
+    { name: 'optionurl', type: 'string', req: false, desc: 'External documentation URL or anchor opened when this option or its helper anchor is triggered.' },
+  ]
+};
+
+const inputTypesData = [
+  { name: 'Avatar Input', aliases: ["avatar", "avatarinput", "avatar-input", "input-avatar", "inputavatar"] },
+  { name: 'Button Input', aliases: ["button", "buttoninput", "button-input", "input-button", "inputbutton"] },
+  { name: 'Checkbox Group', aliases: ["checkbox", "checkboxes", "checkboxinput", "chechbox-input", "input-checkbox", "inputcheckbox", "checkboxgroup-input"] },
+  { name: 'Date Picker', aliases: ["datepicker", "datepickerinput", "datepicker-input", "input-datepicker", "inputdatepicker"] },
+  { name: 'Date Range Picker', aliases: ["daterangepicker", "daterangepickerinput", "daterangepicker-input", "input-daterangepicker", "inputdaterangepicker"] },
+  { name: 'Date Time Picker', aliases: ["datetimepicker", "datetimepickerinput", "datetimepicker-input", "input-datetimepicker", "inputdatetimepicker"] },
+  { name: 'Dropdown', aliases: ["dropdown", "dropdowninput", "dropdown-input", "input-dropdown", "inputdropdown"] },
+  { name: 'Country Dropdown', aliases: ["countrydropdown", "countrydropdowninput", "countrydropdown-input", "input-countrydropdown", "inputcountrydropdown", "countryselect", "countryselect-input", "countryselectinput", "input-countryselect"] },
+  { name: 'Country Multi-Select', aliases: ["countrymultiselect", "countrymultiselectinput", "countrymultiselect-input", "input-countrymultiselect", "inputcountrymultiselect"] },
+  { name: 'File (Single)', aliases: ["file", "fileinput", "file-input", "input-file", "inputfile"] },
+  { name: 'File (Multiple)', aliases: ["filemultiple", "filemultipleinput", "filemultiple-input", "input-filemultiple", "inputfilemultiple"] },
+  { name: 'Image Output', aliases: ["image", "imageoutput", "image-output", "output-image", "outputimage"] },
+  { name: 'Text Area', aliases: ["textarea", "textarea-input", "textarea-outline", "textarea-material", "textarea-neumorphic"] },
+  { name: 'Text Input', aliases: ["text", "textinput", "text-input", "input-text", "inputtext"] },
+  { name: 'Password Input', aliases: ["password", "passwordinput", "password-input", "input-password", "inputpassword"] },
+  { name: 'Phone Input', aliases: ["phone", "phoneinput", "phone-input", "input-phone", "inputphone"] },
+  { name: 'Credit Card Input', aliases: ["creditcard", "creditcardinput", "creditcard-input", "input-creditcard", "inputcreditcard"] },
+  { name: 'Currency Input', aliases: ["currency", "currencyinput", "currency-input", "input-currency", "inputcurrency"] },
+  { name: 'Stock Input', aliases: ["stock", "stockinput", "stock-input", "input-stock", "inputstock"] },
+  { name: 'Radio Group', aliases: ["radio", "radioinput", "radio-input", "input-radio", "inputradio", "radiogroup", "radiogroup-input"] },
+  { name: 'Option Select', aliases: ["select", "selectinput", "select-input", "input-select", "inputselect", "optionselect", "optionselect-input", "input-optionselect"] },
+  { name: 'Multiple Select', aliases: ["selectmultiple", "selectmultipleinput", "selectmultiple-input", "input-selectmultiple", "inputselectmultiple"] },
+  { name: 'Slider', aliases: ["slider", "sliderinput", "slider-input", "input-slider", "inputslider"] },
+  { name: 'Range Slider', aliases: ["range", "rangeslider", "rangeinput", "rangesliderinput", "rangeslider-input", "range-input", "input-rangeslider", "inputrangeslider"] },
+  { name: 'Toggle / Switch', aliases: ["toggle", "switch", "toggleinput", "toggle-input", "input-toggle", "inputtoggle"] },
+  { name: 'Section Title', aliases: ["title", "xtitle", "sectiontitle", "titlesection"] },
+  { name: 'Conditional Trigger', aliases: ["conditional", "conditionaltoggle", "conditionalcheckbox", "conditionalselect", "conditional-toggle", "conditional-select", "conditional-checkbox"] },
+];
+
+const renderTable = (data: any[]) => (
+  <Table.Root variant="surface">
+    <Table.Header>
+      <Table.Row>
+        <Table.ColumnHeaderCell>Attribute</Table.ColumnHeaderCell>
+        <Table.ColumnHeaderCell>Type</Table.ColumnHeaderCell>
+        <Table.ColumnHeaderCell>Description</Table.ColumnHeaderCell>
+      </Table.Row>
+    </Table.Header>
+    <Table.Body>
+      {data.map((row) => (
+        <Table.Row key={row.name}>
+          <Table.RowHeaderCell>
+            <Flex align="center" gap="2">
+              <Text weight="bold" size="2">{row.name}</Text>
+              {row.req ? <Badge size="1" color="ruby" variant="soft">Required</Badge> : <Badge size="1" color="gray" variant="surface">Optional</Badge>}
+            </Flex>
+          </Table.RowHeaderCell>
+          <Table.Cell>
+            <Code style={{ color: 'var(--indigo-10)', backgroundColor: 'transparent' }}>{row.type}</Code>
+          </Table.Cell>
+          <Table.Cell>
+            <Text size="2" color="gray">{row.desc}</Text>
+          </Table.Cell>
+        </Table.Row>
+      ))}
+    </Table.Body>
+  </Table.Root>
+);
+
+const Code = ({ children, style }: { children: React.ReactNode, style?: React.CSSProperties }) => (
+  <code style={{ fontFamily: 'var(--code-font-family, monospace)', fontSize: '12px', padding: '2px 4px', borderRadius: '4px', backgroundColor: 'var(--gray-3)', ...style }}>
+    {children}
+  </code>
+);
 
 /**
  * **Boilerplate Form Definition Template**
@@ -553,6 +651,14 @@ const inputOptionExamples: InputOption[] = [
  * You can copy this object directly into your codebase or API endpoints as a versatile starting point for generating dynamic UI.
  */
 export const SchemaDefinition: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `import { XFormSchema, type XFormType, type InputOption } from '@emeraldemperaur/vector-sigma';\n\n// Use XFormSchema for runtime validation\nconst parsed = XFormSchema.parse(rawJson);\n\n// Use XFormType for TypeScript definitions\nconst myForm: XFormType = { ... };`,
+        language: 'tsx',
+      },
+    },
+  },
   render: () => {
     return (
       <Flex direction="column" gap="4" style={{ width: '100%', maxWidth: '900px', margin: '0 auto' }}>
@@ -585,13 +691,61 @@ export const SchemaDefinition: Story = {
 };
 
 /**
+ * **Attribute Dictionary**
+ * 
+ * A comprehensive breakdown of the core properties driving the VectorSigma schema architecture. 
+ * This dictionary maps directly to the Zod validations defined in `voltron.ts`.
+ */
+export const AttributeDictionary: Story = {
+  parameters: {
+    docs: {
+      source: { code: '/* Reference Table - No Implementation Code Required */' },
+    },
+  },
+  render: () => {
+    return (
+      <Flex direction="column" gap="6" style={{ width: '100%', maxWidth: '900px', margin: '0 auto' }}>
+        <Box>
+          <Heading size="6" mb="2">XFormType Attributes</Heading>
+          <Text size="2" color="gray" mb="4" as="p">The top-level document properties describing the form.</Text>
+          {renderTable(dictionaryData.xform)}
+        </Box>
+        
+        <Box>
+          <Heading size="6" mb="2">Section Attributes</Heading>
+          <Text size="2" color="gray" mb="4" as="p">Logical groupings defining pages, wizard steps, or accordion panels.</Text>
+          {renderTable(dictionaryData.section)}
+        </Box>
+
+        <Box>
+          <Heading size="6" mb="2">XFormQuery Attributes</Heading>
+          <Text size="2" color="gray" mb="4" as="p">The interactive nodes representing individual inputs and components.</Text>
+          {renderTable(dictionaryData.query)}
+        </Box>
+
+        <Box>
+          <Heading size="6" mb="2">InputOption Attributes</Heading>
+          <Text size="2" color="gray" mb="4" as="p">Data payloads bound to interactive select, radio, and multi-select options.</Text>
+          {renderTable(dictionaryData.option)}
+        </Box>
+      </Flex>
+    );
+  },
+};
+
+/**
  * **Universal InputOption Entity Reference**
  * 
- * The `InputOption` type represents the universal data structure required for all VectorSigma selection primitives (`Dropdown`, `OptionSelect`, `MultipleSelect`, `RadioGroupInput`).
+ * The `InputOption` type represents the universal data structure required for all VectorSigma selection primitives (`Dropdown`, `OptionSelect`, `MultipleSelect`, `CountrySelect`, `RadioGroupInput`).
  * 
- * It supports basic rendering with `text` and `optionvalue`, as well as rich supplementary data like inline badging (`tag`), weighted scoring (`score`), helper subtext (`note`), and external links (`optionurl`).
+ * It supports basic rendering with `text` and `optionvalue`, as well as rich supplementary data like inline badging (`tag`), sorting weights (`score`), helper subtext (`note`), and external links (`optionurl`).
  */
 export const InputOptionReference: Story = {
+  parameters: {
+    docs: {
+      source: { code: '/* Reference Data - No Implementation Code Required */' },
+    },
+  },
   render: () => {
     return (
       <Flex direction="column" gap="4" style={{ width: '100%', maxWidth: '900px', margin: '0 auto' }}>
@@ -618,6 +772,69 @@ export const InputOptionReference: Story = {
             </pre>
           </ScrollArea>
         </Card>
+      </Flex>
+    );
+  },
+};
+
+/**
+ * **Supported Input Types (Teletraan1 Lexicon)**
+ * 
+ * The `inputType` property of an `XFormQuery` maps the JSON node to a specific React UI primitive. 
+ * The `Teletraan1` rendering engine supports multiple string aliases for convenience. 
+ */
+export const InputTypeReference: Story = {
+  parameters: {
+    docs: {
+      source: { code: '/* Lexicon Table - No Implementation Code Required */' },
+    },
+  },
+  render: () => {
+    return (
+      <Flex direction="column" gap="4" style={{ width: '100%', maxWidth: '900px', margin: '0 auto' }}>
+        <Flex justify="between" align="center">
+          <Box>
+            <Text size="5" weight="bold" style={{ color: 'var(--gray-12)' }}>InputType Reference Dictionary</Text>
+            <Text size="2" color="gray" as="p" style={{ marginTop: '4px' }}>
+              Maps logical form components to their permitted `inputType` string aliases.
+            </Text>
+          </Box>
+          <Badge size="2" color="blue" variant="soft">Lexicon</Badge>
+        </Flex>
+
+        <Callout.Root color="indigo" variant="surface" mb="4">
+          <Callout.Icon>
+            <InfoCircledIcon />
+          </Callout.Icon>
+          <Callout.Text>
+            <strong>Aesthetic Modifiers:</strong> You can apply structural design variants globally or per-input by appending a modifier suffix to any base alias below. Supported modifiers are <code>-outline</code> (Default), <code>-material</code> (Elevated Cards), and <code>-neumorphic</code> (Soft-UI Extrusions). Example: <code>dropdown-material</code>.
+          </Callout.Text>
+        </Callout.Root>
+
+        <Table.Root variant="surface">
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeaderCell>Component Group</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Permitted Aliases</Table.ColumnHeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {inputTypesData.map((row) => (
+              <Table.Row key={row.name}>
+                <Table.RowHeaderCell>
+                  <Text weight="bold" size="2">{row.name}</Text>
+                </Table.RowHeaderCell>
+                <Table.Cell>
+                  <Flex wrap="wrap" gap="2">
+                    {row.aliases.map((alias) => (
+                      <Code key={alias}>{alias}</Code>
+                    ))}
+                  </Flex>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table.Root>
       </Flex>
     );
   },
